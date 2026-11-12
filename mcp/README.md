@@ -113,11 +113,11 @@ Dois cliques no `instagram-mcp.mcpb` (ou Claude Desktop → Configurações → 
 
 | Campo | Para quê |
 |---|---|
+| Token do Instagram (`IG_TOKEN`) | obrigatório; campo seguro, guardado no cofre do computador |
 | IG ID da conta (`IG_ACCOUNT_ID`) | obrigatório, só números |
-| Perfil de ferramentas (`IG_PERFIL`) | `completo`, `leitura`, `publicar` ou `atendimento` |
 | Chave pública do Uploadcare (`IG_UPLOADCARE_PUBLIC_KEY`) | opcional, só para foto do computador |
 
-O token vai no campo seguro da extensão (o Claude Desktop guarda no cofre do computador). Para conferir o pacote sem instalar: `npx -y @anthropic-ai/mcpb@2.1.2 validate mcpb/manifest.json`.
+A extensão roda sempre com o perfil `completo`. Os outros perfis (abaixo) valem só na instalação pelo Claude Code. Para conferir o pacote sem instalar: `npx -y @anthropic-ai/mcpb@2.1.2 validate mcpb/manifest.json`.
 
 ## Modos de uso (`IG_PERFIL`)
 
