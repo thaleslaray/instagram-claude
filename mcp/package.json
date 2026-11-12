@@ -1,0 +1,36 @@
+{
+  "name": "instagram-mcp",
+  "version": "0.4.11",
+  "private": true,
+  "description": "Servidor MCP local para o Claude ler e operar uma conta profissional do Instagram pela Graph API oficial da Meta",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "gerar-ui": "node scripts/gerar-ui.mjs",
+    "pretypecheck": "npm run gerar-ui",
+    "typecheck": "tsc -p tsconfig.json",
+    "pretest": "npm run gerar-ui",
+    "test": "node --import ./test/setup.ts --test \"test/**/*.test.ts\"",
+    "prebuild": "npm run gerar-ui",
+    "build": "esbuild src/stdio.ts --bundle --platform=node --format=esm --target=node22 --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\" --outfile=mcpb/server/index.mjs",
+    "autoteste": "node scripts/autoteste.mjs",
+    "doctor": "node scripts/doctor.ts",
+    "check": "npm run typecheck && npm test && npm run build && npm run autoteste",
+    "guardar-token": "node scripts/guardar-token.ts",
+    "conferir": "node scripts/conferir.ts",
+    "pack": "npm run build && npx -y @anthropic-ai/mcpb@2.1.2 pack mcpb instagram-mcp.mcpb"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "2.0.4",
+    "@modelcontextprotocol/server": "2.4.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@types/node": "26.6.6",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2"
+  }
+}

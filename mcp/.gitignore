@@ -1,0 +1,5 @@
+node_modules/
+mcpb/server/
+*.mcpb
+.DS_Store
+src/ui-gerada.ts

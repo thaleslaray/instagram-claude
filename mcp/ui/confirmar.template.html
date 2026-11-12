@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Confirmar ação no Instagram</title>
+<style>
+  /* Cores, fonte e raios vêm do app do Claude (variáveis do host). Os valores depois da vírgula valem fora dele. */
+  :root {
+    --c-fundo: var(--color-background-primary, #ffffff);
+    --c-fundo2: var(--color-background-secondary, #f5f4ed);
+    --c-texto: var(--color-text-primary, #141413);
+    --c-texto2: var(--color-text-secondary, #3d3d3a);
+    --c-texto3: var(--color-text-tertiary, #73726c);
+    --c-borda: var(--color-border-tertiary, rgba(31, 30, 29, .15));
+    --c-borda-forte: var(--color-border-primary, rgba(31, 30, 29, .4));
+    --c-perigo-fundo: var(--color-background-danger, #f7ecec);
+    --c-perigo-texto: var(--color-text-danger, #7f2c28);
+    --c-perigo-borda: var(--color-border-danger, #a73d39);
+    --c-ok-fundo: var(--color-background-success, #e9f1dc);
+    --c-ok-texto: var(--color-text-success, #265b19);
+    --c-inverso-fundo: var(--color-background-inverse, #141413);
+    --c-inverso-texto: var(--color-text-inverse, #ffffff);
+    --fonte: var(--font-sans, system-ui, -apple-system, sans-serif);
+    --raio: var(--border-radius-md, 8px);
+    --raio-g: var(--border-radius-lg, 10px);
+    --borda: var(--border-width-regular, 0.5px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --c-fundo: var(--color-background-primary, #30302e);
+      --c-fundo2: var(--color-background-secondary, #262624);
+      --c-texto: var(--color-text-primary, #faf9f5);
+      --c-texto2: var(--color-text-secondary, #c2c0b6);
+      --c-texto3: var(--color-text-tertiary, #9c9a92);
+      --c-borda: var(--color-border-tertiary, rgba(222, 220, 209, .15));
+      --c-borda-forte: var(--color-border-primary, rgba(222, 220, 209, .4));
+      --c-perigo-fundo: var(--color-background-danger, #602a28);
+      --c-perigo-texto: var(--color-text-danger, #ee8884);
+      --c-perigo-borda: var(--color-border-danger, #cd5c58);
+      --c-ok-fundo: var(--color-background-success, #1b4614);
+      --c-ok-texto: var(--color-text-success, #7ab948);
+      --c-inverso-fundo: var(--color-background-inverse, #faf9f5);
+      --c-inverso-texto: var(--color-text-inverse, #141413);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; }
+  body {
+    font-family: var(--fonte);
+    font-size: var(--font-text-sm-size, 14px);
+    line-height: 1.4;
+    color: var(--c-texto);
+    /* Zonas seguras do celular: nada clicável fica sob a barra do app. */
+    padding: calc(12px + var(--safe-top, 0px)) calc(12px + var(--safe-right, 0px)) calc(12px + var(--safe-bottom, 0px)) calc(12px + var(--safe-left, 0px));
+  }
+  .cartao { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .conta { font-size: var(--font-text-xs-size, 12px); color: var(--c-texto3); margin: 0; }
+  h1 { font-size: var(--font-heading-md-size, 16px); font-weight: var(--font-weight-semibold, 600); line-height: 1.3; margin: 0; overflow-wrap: anywhere; }
+  .sem-volta {
+    margin: 0; padding: 8px 12px; border-radius: var(--raio);
+    background: var(--c-perigo-fundo); color: var(--c-perigo-texto);
+    border: var(--borda) solid var(--c-perigo-borda); font-weight: var(--font-weight-semibold, 600);
+  }
+  .linha { margin: 0; color: var(--c-texto2); overflow-wrap: anywhere; }
+  .linha b { color: var(--c-texto); font-weight: var(--font-weight-medium, 500); }
+  .miniaturas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .miniaturas img { width: 72px; height: 72px; object-fit: cover; border-radius: var(--raio); border: var(--borda) solid var(--c-borda); background: var(--c-fundo2); }
+  .texto {
+    margin: 0; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere;
+    background: var(--c-fundo2); border: var(--borda) solid var(--c-borda); border-radius: var(--raio);
+    font-family: inherit; font-size: var(--font-text-sm-size, 14px);
+  }
+  textarea.texto.campo { display: block; width: 100%; resize: none; overflow: hidden; min-height: 3.2em; color: var(--c-texto); line-height: 1.4; }
+  textarea.texto.campo:focus-visible { outline: 2px solid var(--color-ring-info, #3266ad); outline-offset: 1px; }
+  textarea.texto.campo:read-only { opacity: .75; }
+  .contador { margin: 4px 0 0; text-align: right; font-size: var(--font-text-xs-size, 12px); color: var(--c-texto3); }
+  .contador.excedeu { color: var(--c-perigo-texto); }
+  .rotulo { font-size: var(--font-text-xs-size, 12px); color: var(--c-texto3); margin: 0 0 4px; }
+  .detalhes { margin: 0; padding: 0; list-style: none; color: var(--c-texto3); font-size: var(--font-text-xs-size, 12px); display: flex; flex-direction: column; gap: 2px; }
+  .mais { margin: 0; color: var(--c-texto3); font-size: var(--font-text-xs-size, 12px); }
+  .mais summary { cursor: pointer; width: fit-content; padding: 4px 0; color: var(--c-texto2); list-style-position: inside; }
+  .mais summary:hover { color: var(--c-texto); }
+  .mais summary:focus-visible { outline: 2px solid var(--color-ring-info, #3266ad); outline-offset: 2px; border-radius: 2px; }
+  .mais[open] summary { margin-bottom: 4px; }
+  .botoes { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  button {
+    font: inherit; font-weight: var(--font-weight-medium, 500);
+    min-height: 44px; min-width: 44px; padding: 0 20px; border-radius: var(--raio); cursor: pointer;
+    border: var(--borda) solid var(--c-borda-forte); background: transparent; color: var(--c-texto);
+  }
+  button.acao { background: var(--c-inverso-fundo); color: var(--c-inverso-texto); border-color: var(--c-inverso-fundo); }
+  button.acao.perigo { background: var(--c-perigo-texto); border-color: var(--c-perigo-texto); color: var(--c-fundo); }
+  button:focus-visible { outline: 2px solid var(--color-ring-info, #3266ad); outline-offset: 2px; }
+  button:disabled { opacity: .5; cursor: default; }
+  .estado { margin: 0; min-height: 1.4em; color: var(--c-texto2); }
+  .estado.ok { color: var(--c-ok-texto); }
+  .estado.erro { color: var(--c-perigo-texto); }
+  .ver { align-self: flex-start; color: var(--c-texto); font-weight: var(--font-weight-medium, 500); text-decoration: underline; }
+  .ver:focus-visible { outline: 2px solid var(--color-ring-info, #3266ad); outline-offset: 2px; }
+  /* Esqueleto enquanto a prévia não chegou (sem spinner). */
+  .esqueleto { display: flex; flex-direction: column; gap: 10px; }
+  .esqueleto div { height: 14px; border-radius: var(--raio); background: var(--c-fundo2); animation: pulsa 1.4s ease-in-out infinite; }
+  .esqueleto div:nth-child(1) { width: 45%; } .esqueleto div:nth-child(2) { width: 80%; } .esqueleto div:nth-child(3) { width: 100%; height: 60px; }
+  @keyframes pulsa { 50% { opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { .esqueleto div { animation: none; } }
+  .versao { margin: 12px 0 0; font-size: 11px; color: var(--c-texto3); text-align: right; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main class="cartao" id="cartao" aria-live="polite">
+  <div class="esqueleto" id="esqueleto" aria-hidden="true"><div></div><div></div><div></div></div>
+  <section id="previa" hidden></section>
+  <p class="versao" id="versao">v__VERSAO__</p>
+</main>
+<script type="module">
+__BIBLIOTECA_E_LOGICA__
+</script>
+</body>
+</html>

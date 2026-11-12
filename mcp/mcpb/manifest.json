@@ -1,0 +1,193 @@
+{
+  "manifest_version": "0.3",
+  "name": "instagram-mcp",
+  "display_name": "Instagram",
+  "icon": "icon.png",
+  "version": "0.4.11",
+  "description": "Lê e opera uma conta profissional do Instagram pela API oficial da Meta: DMs, comentários, publicação e números da conta. Publicar, responder e apagar só depois do seu clique.",
+  "long_description": "Conecta o Claude a uma conta profissional do Instagram pela API oficial da Meta (login unificado). Na instalação, preencha só o \"Token do Instagram\" (gerado no painel da Meta; o Claude Desktop guarda no cofre do seu computador e ele nunca aparece na conversa) e o ID da conta. Vídeo e mídia de DM do seu computador funcionam sem configurar nada. O campo \"Opcional (etapa 10)\" (chave pública do Uploadcare) fica em branco: só serve para publicar foto do seu computador e pode ser preenchido depois, em Configurações > Extensões > Instagram > Configurar. Publicar, responder e apagar mostram uma prévia dentro da conversa e só acontecem depois do seu clique. Mac e Windows.",
+  "author": {
+    "name": "Thales Laray",
+    "url": "https://thaleslaray.com.br"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.mjs"
+      ],
+      "env": {
+        "IG_INSTALACAO": "extensao",
+        "IG_TOKEN": "${user_config.IG_TOKEN}",
+        "IG_ACCOUNT_ID": "${user_config.IG_ACCOUNT_ID}",
+        "IG_UPLOADCARE_PUBLIC_KEY": "${user_config.IG_UPLOADCARE_PUBLIC_KEY}"
+      }
+    }
+  },
+  "user_config": {
+    "IG_TOKEN": {
+      "type": "string",
+      "title": "Token do Instagram",
+      "description": "O token gerado no painel da Meta (começa com EAA). Cole aqui, nunca no chat. O Claude Desktop guarda no cofre do seu computador.",
+      "sensitive": true,
+      "required": true
+    },
+    "IG_ACCOUNT_ID": {
+      "type": "string",
+      "title": "IG ID da conta",
+      "description": "ID da conta profissional do Instagram (só números, como 17841400000000000). Não é segredo.",
+      "required": true
+    },
+    "IG_UPLOADCARE_PUBLIC_KEY": {
+      "type": "string",
+      "title": "Opcional (etapa 10): chave pública do Uploadcare",
+      "description": "Deixe em branco na instalação. Só serve para publicar foto que está no seu computador (vídeo e mídia de DM não precisam). Não é segredo.",
+      "required": false
+    }
+  },
+  "tools": [
+    {
+      "name": "ig_conta",
+      "description": "Dados da conta: @, bio, seguidores, publicações"
+    },
+    {
+      "name": "ig_estado_do_token",
+      "description": "Confere token, conta, permissões e versão da Graph"
+    },
+    {
+      "name": "ig_listar_conversas",
+      "description": "Lista as conversas de DM"
+    },
+    {
+      "name": "ig_ler_conversa",
+      "description": "Lê as mensagens de uma conversa e a janela de 24 h"
+    },
+    {
+      "name": "ig_ver_mensagem",
+      "description": "Mostra uma mensagem de DM"
+    },
+    {
+      "name": "ig_perfil_contato",
+      "description": "Perfil de quem escreveu para a conta"
+    },
+    {
+      "name": "ig_responder_dm",
+      "description": "Responde uma DM (com confirmação na tela)"
+    },
+    {
+      "name": "ig_enviar_midia_dm",
+      "description": "Manda foto, vídeo ou áudio por DM (com confirmação)"
+    },
+    {
+      "name": "ig_reagir_dm",
+      "description": "Reage a uma DM ou tira a reação"
+    },
+    {
+      "name": "ig_listar_midias",
+      "description": "Lista as publicações da conta"
+    },
+    {
+      "name": "ig_ver_midia",
+      "description": "Detalhes de uma publicação"
+    },
+    {
+      "name": "ig_listar_stories",
+      "description": "Stories no ar"
+    },
+    {
+      "name": "ig_listar_marcacoes",
+      "description": "Posts de outras contas que marcaram a conta"
+    },
+    {
+      "name": "ig_perfil_publico",
+      "description": "Perfil público e posts de outra conta comercial"
+    },
+    {
+      "name": "ig_listar_comentarios",
+      "description": "Comentários de um post"
+    },
+    {
+      "name": "ig_ver_comentario",
+      "description": "Mostra um comentário"
+    },
+    {
+      "name": "ig_listar_respostas",
+      "description": "Respostas de um comentário"
+    },
+    {
+      "name": "ig_responder_comentario",
+      "description": "Responde um comentário (com confirmação)"
+    },
+    {
+      "name": "ig_comentar_midia",
+      "description": "Comenta em um post (com confirmação)"
+    },
+    {
+      "name": "ig_responder_no_privado",
+      "description": "Responde um comentário por DM (com confirmação)"
+    },
+    {
+      "name": "ig_apagar_comentario",
+      "description": "Apaga um comentário (com confirmação)"
+    },
+    {
+      "name": "ig_esconder_comentario",
+      "description": "Esconde ou mostra um comentário"
+    },
+    {
+      "name": "ig_ligar_comentarios",
+      "description": "Liga ou desliga os comentários de um post"
+    },
+    {
+      "name": "ig_publicar_post",
+      "description": "Publica foto no feed (com confirmação)"
+    },
+    {
+      "name": "ig_publicar_carrossel",
+      "description": "Publica carrossel (com confirmação)"
+    },
+    {
+      "name": "ig_publicar_reels",
+      "description": "Publica Reels (com confirmação)"
+    },
+    {
+      "name": "ig_publicar_story",
+      "description": "Publica story (com confirmação)"
+    },
+    {
+      "name": "ig_status_publicacao",
+      "description": "Andamento de uma publicação"
+    },
+    {
+      "name": "ig_limite_publicacao",
+      "description": "Cota de publicação das últimas 24 h"
+    },
+    {
+      "name": "ig_insights_conta",
+      "description": "Insights da conta"
+    },
+    {
+      "name": "ig_insights_midia",
+      "description": "Insights de uma publicação"
+    },
+    {
+      "name": "ig_confirmar",
+      "description": "Confirma um pedido com o código recebido da tela"
+    },
+    {
+      "name": "ig_cancelar",
+      "description": "Cancela um pedido pendente"
+    }
+  ],
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32"
+    ],
+    "runtimes": {
+      "node": ">=22.0.0"
+    }
+  }
+}
