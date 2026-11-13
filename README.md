@@ -77,6 +77,10 @@ Depois de instalado, é só conversar com o Claude do seu jeito. Não precisa sa
 
 A foto ou o vídeo pode ser um link ou um arquivo do seu computador. O vídeo do computador vai direto para a Meta. A foto do computador precisa de uma chave gratuita do Uploadcare, que a etapa 10 da skill configura.
 
+Exemplo: um carrossel de 7 cards criado na conversa com o Claude (texto, arte e legenda), pronto para publicar.
+
+![Cartão de prévia de um carrossel de 7 itens sobre o preço do Claude Fable 5.2, com as miniaturas, a legenda editável, um aviso sobre a legenda e os botões Cancelar e Publicar](docs/cartao-carrossel-7-itens.png)
+
 ### Seus posts, stories e a concorrência
 
 | Peça assim | O que o Claude faz | Seu clique |
@@ -116,6 +120,10 @@ Toda ação marcada com "Sim" abre um cartão na conversa antes de ir para o Ins
 - tem **Enviar** e **Cancelar**, e o pedido vence sozinho se ninguém clicar;
 - acompanha a publicação até aparecer **Pronto**, com o botão **Ver no Instagram**;
 - mostra a versão instalada no rodapé.
+
+Exemplo: o cartão de um carrossel de 5 itens, antes de publicar.
+
+![Cartão de prévia de um carrossel de 5 itens, com as miniaturas, a legenda editável, um aviso sobre a legenda e os botões Cancelar e Publicar](docs/cartao-de-previa.png)
 
 As 33 ferramentas, com todas as opções, estão em [`mcp/README.md`](mcp/README.md).
 
