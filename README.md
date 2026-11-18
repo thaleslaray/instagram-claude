@@ -14,7 +14,7 @@ Abra o **Claude Desktop** na aba **Code** (ou o Claude Code no terminal), cole o
 
 ```text
 Instale o Instagram + Claude seguindo o guia
-https://raw.githubusercontent.com/thaleslaray/instagram-claude/v0.4.15/INSTALL.md
+https://raw.githubusercontent.com/thaleslaray/instagram-claude/v0.4.16/INSTALL.md
 Leia o guia inteiro antes de rodar qualquer comando, me diga o que vai fazer
 e pare para eu decidir sempre que precisar de login, senha ou token.
 ```

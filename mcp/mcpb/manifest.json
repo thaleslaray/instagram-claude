@@ -3,7 +3,7 @@
   "name": "instagram-mcp",
   "display_name": "Instagram",
   "icon": "icon.png",
-  "version": "0.4.15",
+  "version": "0.4.16",
   "description": "Lê e opera uma conta profissional do Instagram pela API oficial da Meta: DMs, comentários, publicação e números da conta. Publicar, responder e apagar só depois do seu clique.",
   "long_description": "Conecta o Claude a uma conta profissional do Instagram pela API oficial da Meta (login unificado). Na instalação, preencha só o \"Token do Instagram\" (gerado no painel da Meta; o Claude Desktop guarda no cofre do seu computador e ele nunca aparece na conversa) e o ID da conta. Vídeo e mídia de DM do seu computador funcionam sem configurar nada. O campo \"Opcional (etapa 10)\" (chave pública do Uploadcare) fica em branco: só serve para publicar foto do seu computador e pode ser preenchido depois, em Configurações > Extensões > Instagram > Configurar. Publicar, responder e apagar mostram uma prévia dentro da conversa e só acontecem depois do seu clique. Mac e Windows.",
   "author": {
