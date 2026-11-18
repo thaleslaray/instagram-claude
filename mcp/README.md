@@ -164,6 +164,20 @@ O token vai sempre em cabeçalho, nunca na URL nem no corpo: `Authorization: Bea
 - **Gravação no Keychain:** o `security add-generic-password -w` corta o valor em 128 caracteres (o token da Meta tem uns 250), por isso os scripts mandam o comando inteiro pela entrada padrão do `security -i` e conferem o que voltou.
 - **Confirmação:** o código de confirmação só chega ao Claude depois do clique real; o modelo não consegue chamar a segunda etapa sozinho.
 
+## Lançar uma versão
+
+Versão nova sai só por `npm run lancar`, em duas fases. A tag é o que o instalador baixa e ela não se move, então tudo é conferido antes dela.
+
+```bash
+npm run lancar -- preparar 0.4.16
+npm run lancar -- publicar 0.4.16 --notas "o que mudou"
+```
+
+- **`preparar X.Y.Z`** exige `main` limpa e igual a `origin/main`, versão maior que a atual e tag livre (aqui e no remoto). Troca a versão nos 7 arquivos de sempre, roda `npm run check`, empacota o `.mcpb` uma única vez, grava o SHA-256 no `INSTALL.md` e roda a conferência. Não faz commit. Se algo falhar, diz o quê e como desfazer (`git checkout -- .`). Revise o `git diff` depois.
+- **`publicar X.Y.Z --notas "..."`** exige a árvore exatamente como o `preparar` deixou e **não empacota de novo** (empacotar muda o hash). Roda a conferência com o pacote, faz commit, tag, `git push origin main vX.Y.Z` e `gh release create`. Depois baixa o tarball da tag e o `.mcpb` da release e roda a mesma conferência neles; se falhar, sai com erro dizendo que a versão publicada está com defeito. `--simular` faz todas as checagens e só imprime os comandos de git e gh.
+
+A conferência também roda sozinha: `npm run conferir-lancamento` (opções `--raiz <pasta>` e `--exigir-pacote`). Ela confere versão única, INSTALL e README presos à versão, skill `instagram-app-meta` (sem ManyCraft), etapas da skill, contagem de etapas igual em todo lugar e o hash do `.mcpb`. Rode depois de mexer na skill, no INSTALL ou no README.
+
 ## Desenvolvimento
 
 ```bash
