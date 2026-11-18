@@ -193,7 +193,7 @@ Fique na conversa até o cartão mostrar **Pronto**. Vídeo pode levar 30 segund
 
 ## Para quem desenvolve
 
-O código está em [`mcp/`](mcp/), em TypeScript, com 567 testes que não usam a rede. Build, testes, empacotamento e uso no Claude Code ficam em [`mcp/README.md`](mcp/README.md#desenvolvimento).
+O código está em [`mcp/`](mcp/), em TypeScript, com 568 testes que não usam a rede. Build, testes, empacotamento e uso no Claude Code ficam em [`mcp/README.md`](mcp/README.md#desenvolvimento).
 
 ## Licença e aviso
 

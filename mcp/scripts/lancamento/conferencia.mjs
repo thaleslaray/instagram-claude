@@ -236,7 +236,12 @@ export function conferirContagemDeEtapas(raiz) {
   const problemas = [];
   const real = contagemReal(raiz);
   if (real.etapas.length === 0) return problemas; // já acusado na regra 4
-  if (real.opcionais.length !== 1) problemas.push(`skill/references: ${real.opcionais.length} etapas marcadas "(opcional)", esperava exatamente 1`);
+  if (real.opcionais.length !== 1) {
+    // Sem saber qual é a etapa opcional não há frase esperada para comparar: para aqui.
+    const quais = real.opcionais.length ? ` (etapas ${real.opcionais.join(", ")})` : "";
+    problemas.push(`skill/references: ${real.opcionais.length} etapas com "(opcional)" no título${quais}, esperava exatamente 1; as frases de contagem não foram conferidas`);
+    return problemas;
+  }
   const [opcional] = real.opcionais;
   const qtd = real.obrigatorias.length;
 
@@ -258,7 +263,9 @@ export function conferirContagemDeEtapas(raiz) {
     for (const [rotulo, re, tipo] of regras) {
       const achados = [...texto.matchAll(re.global ? re : new RegExp(re.source, `${re.flags}g`))];
       if (achados.length === 0) {
-        problemas.push(`${arquivo}: não achei a frase da ${rotulo} das etapas (${tipo === "range" ? `"0 a ${real.maxObrigatoria}, e a ${opcional} opcional"` : `"${qtd} etapas, mais uma opcional"`})`);
+        const artigo = rotulo === "contagem" ? "da" : "do";
+        const esperada = tipo === "range" ? `"0 a ${real.maxObrigatoria}, e a ${opcional} opcional"` : `"${qtd} etapas" e uma opcional`;
+        problemas.push(`${arquivo}: não achei a frase ${artigo} ${rotulo} das etapas (esperava ${esperada})`);
         continue;
       }
       for (const m of achados) {

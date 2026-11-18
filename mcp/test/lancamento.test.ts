@@ -222,7 +222,14 @@ describe("conferência de lançamento", () => {
     it('acusa INSTALL dizendo "etapas 0 a 10"', () => {
       const raiz = montar();
       trocar(raiz, "INSTALL.md", "etapas 0 a 9, e a 10 opcional", "etapas 0 a 10");
-      acusa(conferir(raiz), /INSTALL\.md: não achei a frase da intervalo das etapas/);
+      acusa(conferir(raiz), /INSTALL\.md: não achei a frase do intervalo das etapas \(esperava "0 a 9, e a 10 opcional"\)/);
+    });
+    it("sem etapa opcional, acusa isso e não monta frase com undefined", () => {
+      const raiz = montar();
+      trocar(raiz, "skill/references/etapa-10-foto-do-computador.md", /\s*\(opcional\)/i, "");
+      const problemas = conferir(raiz);
+      acusa(problemas, /skill\/references: 0 etapas com "\(opcional\)" no título, esperava exatamente 1/);
+      assert.equal(problemas.some((p) => /undefined/.test(p)), false);
     });
     it("acusa intervalo errado no INSTALL", () => {
       const raiz = montar();
