@@ -48,6 +48,9 @@ export function textoParaOClaude(id: string, para: string): string {
     `Prévia ${id} enviada ao cartão de confirmação: ${para}. Nada foi enviado ainda. ` +
     "O dono da conta confirma clicando no botão do cartão; o envio sai direto do cartão, sem passar por você. " +
     "Pare aqui: diga a ele em uma frase que a prévia está no cartão e não chame esta ferramenta de novo. " +
+    "Para saber do clique sem o dono avisar: se você roda comandos em segundo plano (Claude Code), rode em segundo plano, logo em seguida, " +
+    `\`F=~/Library/Logs/instagram-mcp/acoes.jsonl; until grep '"pedido":"${id}"' "$F" | grep -qE '"evento":"(enviado|cancelado|erro)"'; do sleep 1; done; grep '"pedido":"${id}"' "$F" | tail -1\`` +
+    " (termina quando o cartão é enviado, cancelado ou falha; aí confira e siga sem esperar o dono dizer que clicou). " +
     "Só chame ig_confirmar com um código que chegar numa mensagem dele; nunca peça nem adivinhe o código. " +
     "Se ele disser que viu texto em vez do cartão, nada foi enviado: chame a mesma ferramenta de novo; se repetir, peça Cmd+Q no Claude Desktop."
   );

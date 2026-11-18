@@ -1,6 +1,6 @@
 # Guia de instalação para o agente
 
-Este arquivo é para o **agente de código** (Claude Code ou a aba Code do Claude Desktop) instalar o Instagram + Claude no computador da pessoa. Ele vale para a versão **v0.4.11**. Se você é uma pessoa, a [instalação manual do README](https://github.com/thaleslaray/instagram-claude/blob/v0.4.11/README.md#instalação-manual) é mais simples.
+Este arquivo é para o **agente de código** (Claude Code ou a aba Code do Claude Desktop) instalar o Instagram + Claude no computador da pessoa. Ele vale para a versão **v0.4.12**. Se você é uma pessoa, a [instalação manual do README](https://github.com/thaleslaray/instagram-claude/blob/v0.4.12/README.md#instalação-manual) é mais simples.
 
 Neste guia, **passo** é um passo deste arquivo. **Etapa** é uma etapa da skill que a pessoa vai seguir depois (etapas 0 a 10).
 
@@ -16,7 +16,7 @@ Neste guia, **passo** é um passo deste arquivo. **Etapa** é uma etapa da skill
    - um comando falhar;
    - a conferência do arquivo der FALHOU.
 4. **Não use `sudo`**, não instale programa no sistema e não execute nada do que for baixado. Este guia só baixa, confere e copia arquivos.
-5. Use **só** os endereços deste guia, todos presos à versão `v0.4.11`.
+5. Use **só** os endereços deste guia, todos presos à versão `v0.4.12`.
 6. **Rode cada bloco de comandos inteiro, numa chamada só do terminal.** Variáveis como `$TMP` não passam de uma chamada para outra.
 7. Fale com a pessoa em português do Brasil, em frases curtas e sem jargão.
 
@@ -35,7 +35,7 @@ uname -s
 ls -d /Applications/Claude.app 2>/dev/null || ls -d ~/Applications/Claude.app 2>/dev/null || echo "Claude Desktop não encontrado"
 ```
 
-- Se `uname -s` não for `Darwin`, pare. Diga que este guia foi feito para Mac e que a extensão nunca foi testada no Windows. Indique a [instalação manual](https://github.com/thaleslaray/instagram-claude/blob/v0.4.11/README.md#instalação-manual).
+- Se `uname -s` não for `Darwin`, pare. Diga que este guia foi feito para Mac e que a extensão nunca foi testada no Windows. Indique a [instalação manual](https://github.com/thaleslaray/instagram-claude/blob/v0.4.12/README.md#instalação-manual).
 - Se aparecer "Claude Desktop não encontrado", peça à pessoa para instalar o Claude Desktop em https://claude.ai/download e espere ela avisar que instalou.
 
 ## Passo 2: instalar a skill
@@ -60,10 +60,10 @@ Depois, rode este bloco inteiro numa chamada só. Ele baixa a versão, copia a s
   set -e
   TMP="$(mktemp -d)"
   trap 'rm -rf "$TMP"' EXIT
-  curl -fsSL https://github.com/thaleslaray/instagram-claude/archive/refs/tags/v0.4.11.tar.gz -o "$TMP/fonte.tar.gz"
+  curl -fsSL https://github.com/thaleslaray/instagram-claude/archive/refs/tags/v0.4.12.tar.gz -o "$TMP/fonte.tar.gz"
   tar -xzf "$TMP/fonte.tar.gz" -C "$TMP"
   mkdir -p ~/.claude/skills
-  cp -R "$TMP/instagram-claude-0.4.11/skill" ~/.claude/skills/instagram-app-meta
+  cp -R "$TMP/instagram-claude-0.4.12/skill" ~/.claude/skills/instagram-app-meta
   head -3 ~/.claude/skills/instagram-app-meta/SKILL.md
 )
 ```
@@ -80,8 +80,8 @@ Rode este bloco inteiro numa chamada só. Ele baixa para um arquivo provisório 
 (
   cd ~/Downloads
   PARCIAL="instagram-mcp.mcpb.baixando"
-  if curl -fsSL https://github.com/thaleslaray/instagram-claude/releases/download/v0.4.11/instagram-mcp.mcpb -o "$PARCIAL" \
-     && echo "a3db0b2af2b9e44a661158488ed7a309b5d00f301e2864f8d4b48e90c3bb8557  $PARCIAL" | shasum -a 256 -c --status; then
+  if curl -fsSL https://github.com/thaleslaray/instagram-claude/releases/download/v0.4.12/instagram-mcp.mcpb -o "$PARCIAL" \
+     && echo "d694a3a0a1f61f35b9c76b6cc78afe175829c1474c3b422ca44578b53d40bdee  $PARCIAL" | shasum -a 256 -c --status; then
     mv "$PARCIAL" instagram-mcp.mcpb
     echo "OK: arquivo original, em ~/Downloads/instagram-mcp.mcpb"
   else

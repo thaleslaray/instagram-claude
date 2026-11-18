@@ -247,6 +247,7 @@ async function decidir(decisao) {
       }
       // Nos outros casos o pedido já foi enviado, usado, cancelado ou venceu: trava de vez.
       encerrar();
+      if (!r.isError) await avisarOClaude(decisao, r);
       if (!r.isError) {
         mostrarLink(linkDoResultado(r));
         const trabalho = decisao === "confirmar" ? extrairTrabalho(r) : null;
@@ -282,6 +283,18 @@ async function decidir(decisao) {
 }
 
 /** Cartão remontado: pergunta ao servidor como está o pedido e se ajusta. Se a consulta falhar, o cartão fica como está. */
+/**
+ * Depois do clique pelo servidor (serverTools), o Claude não fica sabendo: callServerTool não volta ao modelo.
+ * Deixa o resultado no contexto da próxima resposta (ui/update-model-context). O ui/message foi descartado: no
+ * Claude Desktop ele cai na caixa de digitação (testado no whatsapp-claude em 17/11/2026). Nunca leva código.
+ */
+async function avisarOClaude(decisao, r) {
+  const texto = decisao === "confirmar"
+    ? `[cartão ${pedido.id}] O dono clicou em confirmar. ${textoDoResultado(r) || "Feito."}`
+    : `[cartão ${pedido.id}] O dono cancelou. Nada foi enviado.`;
+  try { await app.updateModelContext({ content: [{ type: "text", text: texto.slice(0, 2000) }] }); } catch { /* host sem suporte */ }
+}
+
 async function ajustarPeloEstado(minhaGeracao) {
   if (!app.getHostCapabilities() || !app.getHostCapabilities().serverTools) return;
   const id = pedido.id;
