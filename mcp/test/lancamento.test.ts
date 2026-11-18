@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { after, before, describe, it } from "node:test";
 import { crc32 } from "node:zlib";
-import { conferirArvore, hashDoInstall } from "../scripts/lancamento/conferencia.mjs";
+import { conferirArvore, hashDoInstall, REGRAS } from "../scripts/lancamento/conferencia.mjs";
 
 const REPO = join(import.meta.dirname, "../..");
 const LIDOS = ["mcp/package.json", "mcp/package-lock.json", "mcp/mcpb/manifest.json", "mcp/src/versao.ts", "mcp/test/manifest.test.ts", "INSTALL.md", "README.md", "skill"];
@@ -82,9 +82,13 @@ before(() => {
 after(() => rmSync(base, { recursive: true, force: true }));
 
 describe("conferência de lançamento", () => {
-  it("a árvore real passa (sem exigir o pacote e, se ele existir, conferindo-o também)", () => {
-    assert.deepEqual(conferirArvore(REPO, { exigirPacote: false }), []);
-    if (existsSync(join(REPO, "mcp/instagram-mcp.mcpb"))) assert.deepEqual(conferirArvore(REPO, { exigirPacote: true }), []);
+  it("a árvore real passa nas regras que não dependem do pacote", () => {
+    // O .mcpb é ignorado pelo git e pode ser de outra versão (o `lancar preparar` roda os testes
+    // com a versão já trocada e o pacote antigo ainda em disco). Quem confere o pacote de verdade
+    // é o `conferir-lancamento --exigir-pacote`, depois do `npm run pack`.
+    const semPacote = REGRAS.filter(([nome]) => !/pacote \.mcpb/.test(nome));
+    assert.equal(semPacote.length, REGRAS.length - 1);
+    assert.deepEqual(semPacote.flatMap(([, regra]) => regra(REPO, { exigirPacote: false })), []);
   });
 
   it("a árvore mínima montada pelo teste passa, com o pacote exigido", () => {
