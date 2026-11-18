@@ -4,11 +4,9 @@ Confira os pré-requisitos com o aluno, um por um. Não siga enquanto algum falt
 
 ## O que o aluno precisa ter
 
-1. **Acesso ao ManyCraft** (manycraft.escoladeautomacao.com) com permissão para criar canal no workspace do cliente.
-   - **A conta do Instagram tem de estar ligada a uma Página do Facebook** e quem conduz tem de administrar essa Página. O ManyCraft usa o login pelo Facebook, que depende dessa ligação. Nunca mande desconectar Página e Instagram.
-   - Se a conta já usou outra ferramenta de DM (Manychat e parecidas), avise: na etapa 12 ela vai sair do encaminhamento de conversas.
+1. **Claude Desktop instalado** (provado no Mac). A extensão da etapa 9 foi feita para Mac e Windows, mas só foi provada no Mac. Se o aluno usa **Windows**, leia `references/windows.md` e diga isso a ele com franqueza. Ele **não precisa instalar Node**: a extensão roda com o Node que já vem dentro do Claude Desktop.
 2. **Uma conta de Instagram profissional** (comercial ou criador de conteúdo) **e pública**. A Meta só gera token para conta profissional e pública. Se a conta for pessoal, o Instagram oferece converter na hora de adicionar. Recomende uma conta que nunca foi ligada a outro app.
-   - **Aviso do caso real:** algumas contas a Meta não deixa responder DM pela API, e não achamos a causa. O sinal é o erro `(#10)` "fora do período permitido" **segundos depois** de a pessoa escrever, e o perfil dela devolvendo `(#230) User consent is required`. Se acontecer no teste da etapa 13, a saída é usar outra conta. Não afirme causa nenhuma (nem conta nova, nem tipo de conta).
+   - **Aviso do caso real:** algumas contas a Meta não deixa responder DM pela API, e não achamos a causa. O sinal é o erro `(#10)` "fora do período permitido" **segundos depois** de a pessoa escrever, e o perfil dela devolvendo `(#230) User consent is required`. Se acontecer na etapa 9, a saída é usar outra conta. Não afirme causa nenhuma (nem conta nova, nem tipo de conta).
 3. **O acesso às mensagens ligado na conta.** Peça ao aluno, no app do Instagram no celular, com a conta que vai ser conectada: **Configurações > Tipo e ferramentas da conta > Ferramentas de mensagens > Controle de mensagem > Permitir acesso às mensagens**, ligado. Conta nova vem com isso desligado, e sem ele a etapa 8 devolve o erro `(#200)`. (A documentação da Meta cita outro caminho, "Connected Tools", que não bate com o app atual.)
 4. **Um portfólio empresarial na Meta** (antes chamado Business Manager) em que ele seja administrador. Ele confere em https://business.facebook.com/. Se não tiver nenhum, na etapa 3 você cria um pelo MCP.
 5. **O MCP da Meta instalado e com acesso ao portfólio.** Ele é a ponte que deixa você criar o app por conversa, sem clicar em dezenas de telas. Confira agora, na seção "Conferir o MCP da Meta" abaixo, e não deixe para a etapa 2: se faltar, o aluno instala e reinicia o Claude antes de começar, sem perder o fio no meio.
@@ -29,6 +27,18 @@ Confira os pré-requisitos com o aluno, um por um. Não siga enquanto algum falt
    - Ele não tem portfólio nenhum: o portfólio vai ser criado na etapa 3. Para isso a Meta exige nome e sobrenome, e-mail, **site** e **endereço** (rua, cidade e país com 2 letras; CEP e estado são opcionais): peça agora para ele ter em mãos.
    - Ele já tem vários portfólios: a Meta limita quantos uma pessoa pode criar ("You have reached the limit for the number of Businesses you can create at this time"). Para quem já tem muitos, use um existente em vez de criar outro.
 
+## Se o aluno já tem app e portfólio (você confere)
+
+Pergunte se ele já tem um app na Meta e um portfólio empresarial. Não confie só na resposta: confira com `devtools_app_list` e `devtools_business_list` (só leitura).
+
+- **Existem os dois:** as etapas 2 a 4 são só conferidas e puladas. Confira que o app está ligado ao portfólio e que tem o caso de uso do Instagram (`devtools_app_use_cases` com `list_configured`). Se algo faltar, faça só a etapa que falta.
+- **Existe só um dos dois:** siga as etapas normalmente, pulando só o que já está pronto.
+- **O portfólio já existe:** confira já aqui se a conta do Instagram que vai ser conectada está nesse portfólio. O aluno abre (troque `<ID_DO_PORTFOLIO>`):
+
+  https://business.facebook.com/latest/settings/instagram_account?business_id=<ID_DO_PORTFOLIO>
+
+  Se a conta não estiver na lista, resolva ali mesmo, antes de seguir: faça o passo a passo da etapa 6 (`references/etapa-06-conta-no-portfolio.md`), incluindo o aviso sobre a conta de anúncios, que exige o "pode" do aluno.
+
 ## Pergunte e anote (sem escrever em arquivo)
 
 - O @ da conta do Instagram que será pilotada.
@@ -37,4 +47,4 @@ Confira os pré-requisitos com o aluno, um por um. Não siga enquanto algum falt
 
 ## Como saber que deu certo
 
-O aluno confirma os itens, o acesso às mensagens está ligado, o `devtools_business_list` mostra o portfólio dele (ou ficou decidido criar um, com site e endereço em mãos), e você tem o @, o e-mail e o nome do app.
+O aluno confirma os itens, o acesso às mensagens está ligado, o `devtools_business_list` mostra o portfólio dele (ou ficou decidido criar um, com site e endereço em mãos), e você tem o @, o e-mail e o nome do app. Se ele já tinha app e portfólio, você conferiu os dois e a conta do Instagram já está no portfólio (ou foi posta nele pela etapa 6).

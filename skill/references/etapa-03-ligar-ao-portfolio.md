@@ -19,4 +19,4 @@ Chame `devtools_business_list`. Mostre os portfólios ao aluno e peça para esco
 
 ## Como saber que deu certo
 
-O resultado traz `access_status: CONFIRMED`. Guarde o `business_id` para o link da Business Suite (etapa 7).
+O resultado traz `access_status: CONFIRMED`. Guarde o `business_id` para o link da Business Suite (etapa 6).

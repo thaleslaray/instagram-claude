@@ -1,4 +1,4 @@
-# Etapa 7: pôr a conta no portfólio
+# Etapa 6: pôr a conta no portfólio
 
 No login unificado, a conta do Instagram precisa pertencer ao portfólio. Se pular, na hora de gerar o token a conta de teste não aparece na lista.
 
@@ -20,7 +20,7 @@ No login unificado, a conta do Instagram precisa pertencer ao portfólio. Se pul
 
 ## Aviso "Login necessário": é opcional, ignore
 
-Depois de adicionada, a conta pode aparecer com a etiqueta **"Login necessário"** e o aviso "Entre no Instagram para acessar configurações adicionais", com um botão **Entrar**. **Esse passo é opcional. Não precisa fazer.** Ele só libera configurações extras (atribuir pessoas, parceiros, dar acesso a outros apps), que este curso não usa. Às vezes o aluno clica em Entrar, faz o login e a tela não muda: tudo bem, siga para a etapa 8. Avise isso ao aluno antes que ele tente. O selo some quando o login é concluído (já aconteceu), e mesmo sem concluir o token sai normalmente na etapa 8.
+Depois de adicionada, a conta pode aparecer com a etiqueta **"Login necessário"** e o aviso "Entre no Instagram para acessar configurações adicionais", com um botão **Entrar**. **Esse passo é opcional. Não precisa fazer.** Ele só libera configurações extras (atribuir pessoas, parceiros, dar acesso a outros apps), que este curso não usa. Às vezes o aluno clica em Entrar, faz o login e a tela não muda: tudo bem, siga para a etapa 7. Avise isso ao aluno antes que ele tente. O selo some quando o login é concluído (já aconteceu), e mesmo sem concluir o token sai normalmente na etapa 8.
 
 ## Como saber que deu certo
 

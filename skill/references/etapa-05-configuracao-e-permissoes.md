@@ -1,6 +1,6 @@
-# Etapa 5: criar a configuração do login unificado, com as 11 permissões
+# Etapa 5: criar a configuração do login unificado, com as 8 permissões
 
-Aqui o aluno decide o que o Claude vai poder fazer na conta. Marcar as 11 permissões agora evita voltar depois, porque **permissão nova obriga a gerar um token novo**.
+Aqui o aluno decide o que o Claude vai poder fazer na conta. Marcar as 8 permissões agora evita voltar depois, porque **permissão nova obriga a gerar um token novo**.
 
 ## Passo a passo
 
@@ -23,7 +23,7 @@ Aqui o aluno decide o que o Claude vai poder fazer na conta. Marcar as 11 permis
 
 5. Na configuração criada ("Selecionado", com o selo "Compatível com o Login do Instagram"), clicar em **Prévia**, depois em **Editar permissões**. Abre "Selecionar permissões", com uma caixa **"6 permissões selecionadas"**. Clicar na caixa para abrir a lista.
 
-6. Deixar marcadas e **marcar as que faltam**, até ficarem as 11:
+6. Deixar marcadas e **marcar as que faltam**, até ficarem as 8:
    - `ads_management`
    - `ads_read`
    - `instagram_basic` (obrigatória, não dá para desmarcar)
@@ -32,25 +32,15 @@ Aqui o aluno decide o que o Claude vai poder fazer na conta. Marcar as 11 permis
    - `instagram_content_publish`
    - `instagram_manage_insights` (números da conta e dos posts)
    - `instagram_manage_events`
-   - `pages_show_list` (Página do Facebook: achar a Página ligada ao Instagram)
-   - `pages_manage_metadata` (inscrever a Página no app, para a Meta avisar o ManyCraft)
-   - `pages_messaging` (mensagens pela Página; sem ela o ManyCraft não vira o app padrão das conversas)
-
-   As 3 de Página só aparecem se o caso de uso Messenger foi adicionado na etapa 4. Se não aparecerem, volte lá.
 
    Possível armadilha: clicar numa opção alterna a marca, e uma tentativa pode não pegar (já aconteceu com `instagram_manage_insights`; na rodada mais recente o clique pegou de primeira em cada opção). Confira se ficou marcada; se não, clique de novo.
 
-7. Apertar **Esc** para fechar a lista. A caixa deve dizer **"11 permissões selecionadas"**. Clicar em **Salvar**.
+7. Apertar **Esc** para fechar a lista. A caixa deve dizer **"8 permissões selecionadas"**. Clicar em **Salvar**.
 
 ## É uma lista só
 
-São **11 permissões, sem alternativa**. Não ofereça "tirar as de anúncio" nem outra versão da lista: na rodada de teste isso gerou confusão. As de anúncio (`ads_management` e `ads_read`) vêm no modelo; o aluno não as usa agora, mas ficam marcadas. Na hora de gerar o token (etapa 8) a conta de anúncios fica em branco.
+São **8 permissões, sem alternativa**. Não ofereça "tirar as de anúncio" nem outra versão da lista: na rodada de teste isso gerou confusão. As de anúncio (`ads_management` e `ads_read`) vêm no modelo; o aluno não as usa agora, mas ficam marcadas. Na hora de gerar o token (etapa 8) a conta de anúncios fica em branco.
 
 ## Como saber que deu certo
 
-Ao reabrir **Prévia**, a lista mostra as 11 permissões, a variação "Geral", token de usuário do sistema e expiração "Nunca". Peça ao aluno para ler as permissões em voz alta (ou copiar só os nomes).
-
-
-## Se a configuração já existia
-
-No menu "Login do Facebook para Empresas" há **duas** telas chamadas "Configurações". A que lista e edita as configurações de login é a **segunda**, logo abaixo de "Início rápido". A primeira é de OAuth e não tem permissões.
+Ao reabrir **Prévia**, a lista mostra as 8 permissões, a variação "Geral", token de usuário do sistema e expiração "Nunca". Peça ao aluno para ler as permissões em voz alta (ou copiar só os nomes).

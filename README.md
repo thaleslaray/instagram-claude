@@ -187,7 +187,7 @@ A versão instalada aparece no rodapé do cartão de prévia.
 | Apareceu texto no lugar do cartão de prévia | Peça a prévia de novo na mesma conversa. Se continuar, reinstale a extensão. |
 | O cartão sumiu e voltou | Não clique de novo. Se já foi enviado, o cartão mostra isso. |
 | A DM de alguém não aparece | DM de quem você não segue cai em **Solicitações**. Aceite no app do Instagram. |
-| Erro `(#10)` ou `(#200)` da Meta | A tabela no fim da [etapa 13](skill/references/etapa-13-testar.md) explica cada um. |
+| Erro `(#10)` ou `(#200)` da Meta | A tabela no fim da [etapa 9](skill/references/etapa-09-instalar-e-testar.md) explica cada um. |
 
 Fique na conversa até o cartão mostrar **Pronto**. Vídeo pode levar 30 segundos ou mais, porque a Meta processa antes de publicar.
 
