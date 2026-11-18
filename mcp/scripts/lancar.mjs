@@ -234,6 +234,22 @@ async function baixar(url, destino) {
   throw new Falha(`não consegui baixar ${url} (${ultimo})`);
 }
 
+/** Espera o endereço releases/latest redirecionar para a tag (até 5 minutos). Devolve se apontou. */
+async function esperarUltimaApontar(url, tag) {
+  for (let tentativa = 1; tentativa <= 30; tentativa++) {
+    try {
+      const resposta = await fetch(url, { method: "HEAD", redirect: "manual" });
+      const destino = resposta.headers.get("location") ?? "";
+      if (destino.includes(`/releases/download/${tag}/`)) return true;
+    } catch {
+      // rede instável: tenta de novo
+    }
+    if (tentativa === 1) console.log(`  esperando releases/latest apontar para ${tag}...`);
+    await new Promise((pronto) => setTimeout(pronto, 10000));
+  }
+  return false;
+}
+
 /**
  * Confere o que foi publicado, de dois jeitos. (a) O tarball da tag: as regras de texto, versão e
  * skill valem nele. (b) O que o instalador baixa, de releases/latest/download: a última release
@@ -264,6 +280,10 @@ async function conferirPublicado(versao) {
 
     // Os três arquivos, pelo mesmo endereço que o INSTALL usa, no lugar em que a conferência os lê.
     const base = `https://github.com/${repo}/releases/latest/download`;
+    // A API já mostra a release nova, mas o endereço releases/latest leva um ou dois minutos para
+    // apontar para ela. Espera o redirecionamento chegar na tag antes de baixar.
+    const apontou = await esperarUltimaApontar(`${base}/${NOME_PACOTE}`, tag);
+    if (!apontou) problemas.push(`releases/latest ainda não aponta para ${tag} depois de 5 minutos (o instalador baixa por esse endereço). Confira de novo com: npm run lancar -- conferir-publicado ${versao}`);
     mkdirSync(join(raizExtraida, "mcp"), { recursive: true });
     for (const arquivo of ARQUIVOS_DA_RELEASE) {
       await baixar(`${base}/${arquivo.split("/").pop()}`, join(raizExtraida, arquivo));
@@ -320,6 +340,12 @@ async function publicar(versao, notas) {
     return;
   }
 
+  await relatarPublicado(versao);
+}
+
+/** Roda a conferência do que está no GitHub e diz o resultado. Também é a fase `conferir-publicado`. */
+async function relatarPublicado(versao) {
+  const tag = `v${versao}`;
   passo("Conferindo pelo que foi publicado");
   const publicados = await conferirPublicado(versao);
   if (publicados.length) {
@@ -348,7 +374,7 @@ function lerArgumentos(argv) {
 }
 
 async function main() {
-  const uso = 'Uso:\n  npm run lancar -- preparar X.Y.Z\n  npm run lancar -- publicar X.Y.Z --notas "texto" [--simular]';
+  const uso = 'Uso:\n  npm run lancar -- preparar X.Y.Z\n  npm run lancar -- publicar X.Y.Z --notas "texto" [--simular]\n  npm run lancar -- conferir-publicado X.Y.Z';
   try {
     const opcoes = lerArgumentos(process.argv.slice(2));
     if (opcoes.fase === "preparar" && opcoes.versao) {
@@ -357,6 +383,9 @@ async function main() {
     } else if (opcoes.fase === "publicar" && opcoes.versao) {
       simular = opcoes.simular;
       await publicar(opcoes.versao, opcoes.notas);
+    } else if (opcoes.fase === "conferir-publicado" && opcoes.versao) {
+      if (opcoes.simular || opcoes.notas) throw new Falha("--simular e --notas são da fase publicar");
+      await relatarPublicado(opcoes.versao);
     } else {
       console.error(uso);
       process.exit(2);
