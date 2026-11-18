@@ -1,5 +1,6 @@
-// Confere se a árvore está pronta para virar uma versão: versão única, INSTALL e README presos
-// a ela, skill certa, etapas coerentes e pacote .mcpb com o hash do INSTALL.
+// Confere se a árvore está pronta para virar uma versão: versão única, INSTALL e README sem
+// versão e baixando da última release, skill certa, etapas coerentes e pacote da release
+// (.mcpb, .sha256 e .skill).
 //
 // Rodar: npm run conferir-lancamento [-- --raiz <pasta>] [--exigir-pacote]
 // Sai com 1 se achar qualquer problema.

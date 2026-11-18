@@ -14,7 +14,7 @@ Abra o **Claude Desktop** na aba **Code** (ou o Claude Code no terminal), cole o
 
 ```text
 Instale o Instagram + Claude seguindo o guia
-https://raw.githubusercontent.com/thaleslaray/instagram-claude/v0.4.16/INSTALL.md
+https://raw.githubusercontent.com/thaleslaray/instagram-claude/main/INSTALL.md
 Leia o guia inteiro antes de rodar qualquer comando, me diga o que vai fazer
 e pare para eu decidir sempre que precisar de login, senha ou token.
 ```
@@ -160,13 +160,13 @@ Achou uma falha de segurança? Veja [SECURITY.md](SECURITY.md).
 
 ## Instalação manual
 
-1. Baixe o `instagram-mcp.mcpb` da [última versão](https://github.com/thaleslaray/instagram-claude/releases/latest). **Não abra o arquivo ainda**: a tela de instalação pede o token, que você só gera na etapa 8.
-2. Baixe o código-fonte da mesma versão e copie a pasta `skill/` para `~/.claude/skills/instagram-app-meta/`.
+1. Na [última versão](https://github.com/thaleslaray/instagram-claude/releases/latest), baixe o `instagram-mcp.mcpb`. **Não abra o arquivo ainda**: a tela de instalação pede o token, que você só gera na etapa 8.
+2. Na mesma página, baixe o `instagram-app-meta.skill`. Ele é um arquivo zip: abra com dois cliques (ou `unzip instagram-app-meta.skill`) e copie a pasta `instagram-app-meta` para `~/.claude/skills/`.
 3. Abra uma conversa nova na aba Code e digite `/instagram-app-meta`. A skill faz o resto. Na etapa 9, ela pede para abrir o `.mcpb`.
 
 ## Atualizar
 
-Rode o prompt de instalação de novo com a versão nova, ou baixe o `.mcpb` novo e abra por cima do antigo. Depois:
+Rode o prompt de instalação de novo (ele baixa a última versão publicada), ou baixe o `.mcpb` novo e abra por cima do antigo. Depois:
 1. Feche o Claude Desktop por completo com **Cmd+Q**.
 2. Abra de novo.
 3. Use uma **conversa nova**. Conversa antiga continua com a versão velha.
@@ -193,7 +193,7 @@ Fique na conversa até o cartão mostrar **Pronto**. Vídeo pode levar 30 segund
 
 ## Para quem desenvolve
 
-O código está em [`mcp/`](mcp/), em TypeScript, com 568 testes que não usam a rede. Build, testes, empacotamento e uso no Claude Code ficam em [`mcp/README.md`](mcp/README.md#desenvolvimento).
+O código está em [`mcp/`](mcp/), em TypeScript, com 578 testes que não usam a rede. Build, testes, empacotamento e uso no Claude Code ficam em [`mcp/README.md`](mcp/README.md#desenvolvimento).
 
 ## Licença e aviso
 

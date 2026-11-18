@@ -1,5 +1,7 @@
 node_modules/
 mcpb/server/
 *.mcpb
+*.sha256
+*.skill
 .DS_Store
 src/ui-gerada.ts

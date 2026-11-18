@@ -1,16 +1,27 @@
 // Conferência de lançamento: função pura que olha uma árvore (o repositório ou um tarball
 // extraído da tag) e devolve a lista de problemas. Não toca rede nem git.
 //
-// A tag é o que o instalador baixa e ela não se move. Por isso tudo o que dá para errar
-// (versão torta, skill errada, contagem de etapas, hash do .mcpb) é conferido ANTES dela.
+// O instalador baixa da ÚLTIMA release (releases/latest/download) e o INSTALL e o README valem
+// direto da main. Por isso tudo o que dá para errar (versão torta, skill errada, contagem de
+// etapas, pacote da release) é conferido ANTES de publicar, e nenhum texto carrega versão.
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 
 export const NOME_DA_SKILL = "instagram-app-meta";
-export const CAMINHO_PACOTE = "mcp/instagram-mcp.mcpb";
+export const NOME_PACOTE = "instagram-mcp.mcpb";
+export const NOME_SHA256 = "instagram-mcp.mcpb.sha256";
+export const NOME_SKILL_ZIP = "instagram-app-meta.skill";
+export const CAMINHO_PACOTE = `mcp/${NOME_PACOTE}`;
+export const CAMINHO_SHA256 = `mcp/${NOME_SHA256}`;
+export const CAMINHO_SKILL_ZIP = `mcp/${NOME_SKILL_ZIP}`;
+/** Os três arquivos de uma release, na ordem em que sobem. */
+export const ARQUIVOS_DA_RELEASE = [CAMINHO_PACOTE, CAMINHO_SHA256, CAMINHO_SKILL_ZIP];
+/** Nomes que não entram no .skill (lixo do Finder e o .gitignore da pasta). */
+export const IGNORADOS_NA_SKILL = [".DS_Store", ".gitignore"];
+const BASE_LATEST = "releases/latest/download";
 const SEMVER = /^\d+\.\d+\.\d+$/;
 // x.y.z solto no texto. O `@` na frente é fixação de pacote (mcpb@2.1.2), não versão do projeto.
 const VERSAO_NO_TEXTO = /(?<![\w.@])v?(\d+\.\d+\.\d+)(?!\w|\.\d)/g;
@@ -93,13 +104,16 @@ export function conferirVersaoUnica(raiz) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// INSTALL e README presos à versão
+// INSTALL e README sem versão, baixando da última release
 
-export function conferirTextosPresosAVersao(raiz) {
+export function conferirTextosSemVersao(raiz) {
   const problemas = [];
-  const versao = versaoDoPacote(raiz);
-  if (!versao || !SEMVER.test(versao)) return ["mcp/package.json: sem versão válida; não dá para conferir INSTALL e README"];
-
+  const proibidos = [
+    [/releases\/download\/v/g, "releases/download/v (endereço preso a uma tag)"],
+    [/archive\/refs\/tags/g, "archive/refs/tags (tarball de uma tag)"],
+    [/\/blob\/v/g, "blob/v (link preso a uma tag)"],
+    [/raw\.githubusercontent\.com\/[^/\s]+\/[^/\s]+\/v\d/g, "raw.githubusercontent.com/.../v (link preso a uma tag)"],
+  ];
   for (const arquivo of ["INSTALL.md", "README.md"]) {
     if (!existe(raiz, arquivo)) {
       problemas.push(`${arquivo}: arquivo não existe`);
@@ -107,28 +121,30 @@ export function conferirTextosPresosAVersao(raiz) {
     }
     const texto = ler(raiz, arquivo);
     for (const achou of texto.matchAll(VERSAO_NO_TEXTO)) {
-      if (achou[1] !== versao) {
-        problemas.push(`${arquivo}, linha ${linhaDe(texto, achou.index)}: versão ${achou[0]}, esperava v${versao}`);
-      }
+      problemas.push(`${arquivo}, linha ${linhaDe(texto, achou.index)}: versão ${achou[0]}, esperava nenhuma versão do projeto no texto (vale a última release)`);
+    }
+    for (const [re, rotulo] of proibidos) {
+      for (const achou of texto.matchAll(re)) problemas.push(`${arquivo}, linha ${linhaDe(texto, achou.index)}: ${rotulo}, esperava ${BASE_LATEST}/ ou a main`);
     }
   }
 
-  // Cada lugar onde a versão tem de aparecer, com a forma exata (com ou sem "v").
-  const exigidos = {
-    "INSTALL.md": [
-      [`texto "vale para a versão"`, new RegExp(`vale para a versão \\*\\*v${esc(versao)}\\*\\*`)],
-      ["URL blob/", new RegExp(`/blob/v${esc(versao)}/`)],
-      ["URL archive/refs/tags/", new RegExp(`/archive/refs/tags/v${esc(versao)}\\.tar\\.gz`)],
-      ["URL releases/download/", new RegExp(`/releases/download/v${esc(versao)}/instagram-mcp\\.mcpb`)],
-      ["pasta instagram-claude-X.Y.Z/skill", new RegExp(`instagram-claude-${esc(versao)}/skill`)],
-    ],
-    "README.md": [["URL do INSTALL.md", new RegExp(`instagram-claude/v${esc(versao)}/INSTALL\\.md`)]],
-  };
-  for (const [arquivo, regras] of Object.entries(exigidos)) {
-    if (!existe(raiz, arquivo)) continue;
-    const texto = ler(raiz, arquivo);
-    for (const [rotulo, re] of regras) {
-      if (!re.test(texto)) problemas.push(`${arquivo}: não achei ${rotulo} com a versão v${versao}`);
+  if (existe(raiz, "INSTALL.md")) {
+    const texto = ler(raiz, "INSTALL.md");
+    // Os endereços podem estar por extenso ou numa variável BASE="...releases/latest/download".
+    const bases = [...texto.matchAll(/\bBASE="([^"]+)"/g)].map((m) => m[1]);
+    const baseLatest = bases.some((b) => b.replace(/\/+$/, "").endsWith(BASE_LATEST));
+    for (const nome of [NOME_PACOTE, NOME_SHA256, NOME_SKILL_ZIP]) {
+      const porExtenso = new RegExp(`${esc(BASE_LATEST)}/${esc(nome)}(?![\\w.])`).test(texto);
+      const porBase = baseLatest && new RegExp(`\\$BASE/${esc(nome)}(?![\\w.])`).test(texto);
+      if (!porExtenso && !porBase) problemas.push(`INSTALL.md: não achei o endereço ${BASE_LATEST}/${nome}`);
+    }
+    if (/\b[0-9a-f]{64}\b/.test(texto)) problemas.push("INSTALL.md: tem um SHA-256 escrito; o hash vem do arquivo .sha256 da release, esperava nenhum hash no texto");
+  }
+
+  if (existe(raiz, "README.md")) {
+    const texto = ler(raiz, "README.md");
+    if (!/raw\.githubusercontent\.com\/thaleslaray\/instagram-claude\/main\/INSTALL\.md/.test(texto)) {
+      problemas.push("README.md: não achei a URL do INSTALL.md na main (raw.githubusercontent.com/thaleslaray/instagram-claude/main/INSTALL.md)");
     }
   }
   return problemas;
@@ -300,38 +316,98 @@ export function conferirContagemDeEtapas(raiz) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Pacote (.mcpb)
+// Pacote da release: .mcpb, .sha256 e .skill
 
 export function sha256Arquivo(caminho) {
   return createHash("sha256").update(readFileSync(caminho)).digest("hex");
 }
 
-/** O SHA-256 escrito no INSTALL.md (linha do `shasum -a 256 -c`), ou null. */
-export function hashDoInstall(raiz) {
-  if (!existe(raiz, "INSTALL.md")) return null;
-  return ler(raiz, "INSTALL.md").match(/echo "([0-9a-f]{64})  [^"]*" \| shasum -a 256 -c/)?.[1] ?? null;
+/** Arquivos de uma pasta (recursivo), em caminhos relativos com "/", sem os nomes ignorados na skill. */
+export function arquivosDaSkill(pasta) {
+  const saida = [];
+  const andar = (dir) => {
+    for (const nome of readdirSync(dir).sort()) {
+      if (IGNORADOS_NA_SKILL.includes(nome)) continue;
+      const completo = join(dir, nome);
+      if (statSync(completo).isDirectory()) andar(completo);
+      else saida.push(relative(pasta, completo).split(sep).join("/"));
+    }
+  };
+  andar(pasta);
+  return saida;
+}
+
+/**
+ * Compara o .skill com uma pasta skill/: mesmos arquivos e mesmo conteúdo (hash de cada um), todos
+ * sob a pasta instagram-app-meta/. Devolve os problemas.
+ */
+export function conferirSkillEmpacotada(zip, pastaSkill, rotulo = CAMINHO_SKILL_ZIP) {
+  let entradas;
+  try {
+    entradas = execFileSync("unzip", ["-Z1", zip], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })
+      .split("\n")
+      .filter((e) => e && !e.endsWith("/"));
+  } catch (erro) {
+    return [`${rotulo}: não consegui abrir o zip (${String(erro.message).split("\n")[0]})`];
+  }
+  const problemas = [];
+  const prefixo = `${NOME_DA_SKILL}/`;
+  const noZip = new Map();
+  for (const entrada of entradas) {
+    if (!entrada.startsWith(prefixo) || entrada.split("/").includes("..")) problemas.push(`${rotulo}: ${entrada} fora da pasta ${prefixo}, esperava tudo dentro dela`);
+    else noZip.set(entrada.slice(prefixo.length), entrada);
+  }
+  const esperados = existsSync(pastaSkill) ? arquivosDaSkill(pastaSkill) : [];
+  for (const arq of esperados) if (!noZip.has(arq)) problemas.push(`${rotulo}: falta ${prefixo}${arq}, que está em skill/`);
+  for (const arq of noZip.keys()) if (!esperados.includes(arq)) problemas.push(`${rotulo}: tem ${prefixo}${arq}, que não está em skill/ (ou é um nome ignorado: ${IGNORADOS_NA_SKILL.join(", ")})`);
+  for (const arq of esperados) {
+    if (!noZip.has(arq)) continue;
+    try {
+      const dentro = execFileSync("unzip", ["-p", zip, noZip.get(arq)], { stdio: ["ignore", "pipe", "pipe"], maxBuffer: 64 * 1024 * 1024 });
+      const hashDentro = createHash("sha256").update(dentro).digest("hex");
+      const hashFora = sha256Arquivo(join(pastaSkill, arq));
+      if (hashDentro !== hashFora) problemas.push(`${rotulo}: ${prefixo}${arq} tem conteúdo diferente de skill/${arq}`);
+    } catch (erro) {
+      problemas.push(`${rotulo}: não consegui ler ${prefixo}${arq} de dentro do zip (${String(erro.message).split("\n")[0]})`);
+    }
+  }
+  return problemas;
 }
 
 export function conferirPacote(raiz, { exigirPacote = false } = {}) {
   const problemas = [];
-  const hashInstall = hashDoInstall(raiz);
-  if (!hashInstall) problemas.push('INSTALL.md: não achei a linha do `shasum -a 256 -c` com um SHA-256 de 64 caracteres hexadecimais');
   const pacote = join(raiz, CAMINHO_PACOTE);
-  if (!existsSync(pacote)) {
-    if (exigirPacote) problemas.push(`${CAMINHO_PACOTE}: arquivo não existe, esperava o pacote gerado por npm run pack`);
-    return problemas;
+  const arquivoSha = join(raiz, CAMINHO_SHA256);
+  const zipSkill = join(raiz, CAMINHO_SKILL_ZIP);
+
+  for (const caminho of ARQUIVOS_DA_RELEASE) {
+    if (!existe(raiz, caminho) && exigirPacote) problemas.push(`${caminho}: arquivo não existe, esperava o que o npm run pacote-da-release gera`);
   }
-  const hashReal = sha256Arquivo(pacote);
-  if (hashInstall && hashReal !== hashInstall) {
-    problemas.push(`${CAMINHO_PACOTE}: SHA-256 ${hashReal}, esperava ${hashInstall} (o que está no INSTALL.md)`);
+
+  // .mcpb: manifest.json de dentro com a versão do projeto.
+  if (existsSync(pacote)) {
+    const versao = versaoDoPacote(raiz);
+    try {
+      const manifesto = JSON.parse(execFileSync("unzip", ["-p", pacote, "manifest.json"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
+      if (manifesto.version !== versao) problemas.push(`${CAMINHO_PACOTE}: manifest.json de dentro tem versão ${manifesto.version}, esperava ${versao}`);
+    } catch (erro) {
+      problemas.push(`${CAMINHO_PACOTE}: não consegui ler manifest.json de dentro do zip (${String(erro.message).split("\n")[0]})`);
+    }
   }
-  const versao = versaoDoPacote(raiz);
-  try {
-    const manifesto = JSON.parse(execFileSync("unzip", ["-p", pacote, "manifest.json"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
-    if (manifesto.version !== versao) problemas.push(`${CAMINHO_PACOTE}: manifest.json de dentro tem versão ${manifesto.version}, esperava ${versao}`);
-  } catch (erro) {
-    problemas.push(`${CAMINHO_PACOTE}: não consegui ler manifest.json de dentro do zip (${String(erro.message).split("\n")[0]})`);
+
+  // .sha256: uma linha "<sha256>  instagram-mcp.mcpb", com o hash real do .mcpb.
+  if (existsSync(arquivoSha)) {
+    const texto = readFileSync(arquivoSha, "utf8");
+    const linha = texto.match(new RegExp(`^([0-9a-f]{64})  ${esc(NOME_PACOTE)}\\n?$`));
+    if (!linha) problemas.push(`${CAMINHO_SHA256}: esperava uma linha "<sha256 de 64 hexadecimais>  ${NOME_PACOTE}", veio ${JSON.stringify(texto.slice(0, 120))}`);
+    else if (existsSync(pacote)) {
+      const hashReal = sha256Arquivo(pacote);
+      if (hashReal !== linha[1]) problemas.push(`${CAMINHO_PACOTE}: SHA-256 ${hashReal}, esperava ${linha[1]} (o que está em ${NOME_SHA256})`);
+    }
   }
+
+  // .skill: os mesmos arquivos e conteúdos de skill/, sob instagram-app-meta/.
+  if (existsSync(zipSkill)) problemas.push(...conferirSkillEmpacotada(zipSkill, join(raiz, "skill")));
   return problemas;
 }
 
@@ -340,11 +416,11 @@ export function conferirPacote(raiz, { exigirPacote = false } = {}) {
 /** As regras, na ordem em que aparecem no relatório. */
 export const REGRAS = [
   ["1. versão única nos arquivos do pacote", (raiz) => conferirVersaoUnica(raiz)],
-  ["2. INSTALL e README presos à versão", (raiz) => conferirTextosPresosAVersao(raiz)],
+  ["2. INSTALL e README sem versão, baixando da última release", (raiz) => conferirTextosSemVersao(raiz)],
   ["3. skill certa (instagram-app-meta, sem ManyCraft)", (raiz) => conferirSkillCerta(raiz)],
   ["4. etapas da skill coerentes", (raiz) => conferirEtapasDaSkill(raiz)],
   ["5. contagem de etapas igual em todo lugar", (raiz) => conferirContagemDeEtapas(raiz)],
-  ["6. pacote .mcpb", (raiz, opcoes) => conferirPacote(raiz, opcoes)],
+  ["6. pacote da release (.mcpb, .sha256 e .skill)", (raiz, opcoes) => conferirPacote(raiz, opcoes)],
 ];
 
 /** Roda todas as regras e devolve a lista de problemas (vazia = tudo certo). */

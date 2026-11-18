@@ -166,17 +166,25 @@ O token vai sempre em cabeçalho, nunca na URL nem no corpo: `Authorization: Bea
 
 ## Lançar uma versão
 
-Versão nova sai só por `npm run lancar`, em duas fases. A tag é o que o instalador baixa e ela não se move, então tudo é conferido antes dela.
+O que chega ao público e como:
+
+- **`INSTALL.md` e `README.md`** valem direto da `main`. Não têm versão nenhuma: corrigir um texto chega com um push, sem versão nova.
+- **A skill e a extensão** só chegam por release, com **três arquivos de nomes fixos**: `instagram-mcp.mcpb`, `instagram-mcp.mcpb.sha256` (uma linha: `<sha256>  instagram-mcp.mcpb`) e `instagram-app-meta.skill` (zip cuja raiz é a pasta `instagram-app-meta/`, com o conteúdo de `skill/`, sem `.DS_Store` nem `.gitignore`). O instalador baixa os três de `releases/latest/download`, isto é, da última release publicada.
+- A skill do ManyCraft não mora aqui: fica no repositório do ManyCraft.
+
+Versão nova sai só por `npm run lancar`, em duas fases. Como o instalador baixa da última release e a tag não se move, tudo é conferido antes dela.
 
 ```bash
-npm run lancar -- preparar 0.4.16
-npm run lancar -- publicar 0.4.16 --notas "o que mudou"
+npm run lancar -- preparar 0.4.17
+npm run lancar -- publicar 0.4.17 --notas "o que mudou"
 ```
 
-- **`preparar X.Y.Z`** exige `main` limpa e igual a `origin/main`, versão maior que a atual e tag livre (aqui e no remoto). Troca a versão nos 7 arquivos de sempre, roda `npm run check`, empacota o `.mcpb` uma única vez, grava o SHA-256 no `INSTALL.md` e roda a conferência. Não faz commit. Se algo falhar, diz o quê e como desfazer (`git checkout -- .`). Revise o `git diff` depois.
-- **`publicar X.Y.Z --notas "..."`** exige a árvore exatamente como o `preparar` deixou e **não empacota de novo** (empacotar muda o hash). Roda a conferência com o pacote, faz commit, tag, `git push origin main vX.Y.Z` e `gh release create`. Depois baixa o tarball da tag e o `.mcpb` da release e roda a mesma conferência neles; se falhar, sai com erro dizendo que a versão publicada está com defeito. `--simular` faz todas as checagens e só imprime os comandos de git e gh.
+- **`preparar X.Y.Z`** exige `main` limpa e igual a `origin/main`, versão maior que a atual e tag livre (aqui e no remoto). Troca a versão nos 5 arquivos do pacote (`mcp/package.json`, `mcp/package-lock.json`, `mcp/mcpb/manifest.json`, `mcp/src/versao.ts`, `mcp/test/manifest.test.ts`), roda `npm run check`, gera os três arquivos da release uma única vez (`npm run pacote-da-release`: `npm run pack` e depois o `.sha256` e o `.skill`) e roda a conferência com o pacote. Não faz commit. Se algo falhar, diz o quê e como desfazer (`git checkout -- .`). Revise o `git diff` depois.
+- **`publicar X.Y.Z --notas "..."`** exige a árvore exatamente como o `preparar` deixou (só os 5 arquivos modificados e os três arquivos da release presentes) e **não empacota de novo**. Roda a conferência com o pacote, faz commit, tag, `git push origin main vX.Y.Z` e `gh release create` com os três arquivos. Depois confere pelo publicado: baixa o tarball da tag e roda a conferência nele; baixa os três arquivos de `releases/latest/download` (o que o instalador usa), confirma que a última release é a tag recém-criada, que o `.mcpb` bate com o `.sha256` e que o `.skill` é igual à `skill/` do tarball. Se algo falhar, sai com erro dizendo que a versão publicada está com defeito. `--simular` faz todas as checagens e só imprime os comandos de git e gh.
 
-A conferência também roda sozinha: `npm run conferir-lancamento` (opções `--raiz <pasta>` e `--exigir-pacote`). Ela confere versão única, INSTALL e README presos à versão, skill `instagram-app-meta` (sem ManyCraft), etapas da skill, contagem de etapas igual em todo lugar e o hash do `.mcpb`. Rode depois de mexer na skill, no INSTALL ou no README.
+Para gerar os três arquivos sem lançar: `npm run pacote-da-release` (ficam em `mcp/`, ignorados pelo git).
+
+A conferência também roda sozinha: `npm run conferir-lancamento` (opções `--raiz <pasta>` e `--exigir-pacote`). Ela confere versão única nos arquivos do pacote, INSTALL e README sem versão e baixando de `releases/latest/download` (ou da `main`), skill `instagram-app-meta` (sem ManyCraft), etapas da skill, contagem de etapas igual em todo lugar e o pacote da release (SHA-256 do `.mcpb`, versão do `manifest.json` de dentro e o `.skill` com os mesmos arquivos e conteúdos de `skill/`). Rode depois de mexer na skill, no INSTALL ou no README.
 
 ## Desenvolvimento
 
@@ -188,6 +196,7 @@ npm run build      # gera mcpb/server/index.mjs (esbuild, arquivo único)
 npm run autoteste  # sobe o build por stdio contra a Graph falsa e confere tudo
 npm run check      # typecheck + testes + build + autoteste
 npm run pack       # build + .mcpb
+npm run pacote-da-release  # pack + .sha256 + .skill
 ```
 
 Os testes nunca tocam o Keychain do serviço `instagram-mcp` nem a Meta nem o Uploadcare: usam Graph falsa (com rupload e anexo de DM), Uploadcare falso, cofre em memória e executor falso. Requer Node 22 ou mais novo (os testes rodam os `.ts` direto).

@@ -4,12 +4,25 @@
   "display_name": "Instagram",
   "icon": "icon.png",
   "version": "0.4.16",
-  "description": "Lê e opera uma conta profissional do Instagram pela API oficial da Meta: DMs, comentários, publicação e números da conta. Publicar, responder e apagar só depois do seu clique.",
-  "long_description": "Conecta o Claude a uma conta profissional do Instagram pela API oficial da Meta (login unificado). Na instalação, preencha só o \"Token do Instagram\" (gerado no painel da Meta; o Claude Desktop guarda no cofre do seu computador e ele nunca aparece na conversa) e o ID da conta. Vídeo e mídia de DM do seu computador funcionam sem configurar nada. O campo \"Opcional (etapa 10)\" (chave pública do Uploadcare) fica em branco: só serve para publicar foto do seu computador e pode ser preenchido depois, em Configurações > Extensões > Instagram > Configurar. Publicar, responder e apagar mostram uma prévia dentro da conversa e só acontecem depois do seu clique. Mac e Windows.",
+  "description": "O Claude lê e opera o seu Instagram profissional: DMs, comentários, posts e números. Nada é publicado, respondido ou apagado sem o seu clique. API oficial da Meta.",
+  "long_description": "**O Claude cuida do seu Instagram com você: ele lê, deixa pronto e você só clica em enviar.**\nPeça do jeito que você fala: \"quem me chamou no direct?\", \"o que comentaram no último post?\", \"publica essa foto com essa legenda\", \"como foi meu alcance este mês?\".\n\n**O que ele faz**\n• Lê as DMs, diz quem ainda dá para responder (a janela é de 24 h) e deixa a resposta pronta, com texto, imagem, vídeo, áudio ou PDF.\n• Lê os comentários, responde em público ou no privado, esconde spam e liga ou desliga os comentários de um post.\n• Publica foto, carrossel, Reels e story, de um link ou de um arquivo do seu computador.\n• Mostra os números da conta e de cada post, e aponta o post que fugiu do seu normal.\n• Olha o perfil público e os últimos posts de outras contas profissionais.\n\n**Você no controle**\n• Publicar, responder e apagar só acontecem depois do seu clique. Cada ação aparece num cartão na conversa, e você pode corrigir o texto ali antes de enviar.\n• O que dá para desfazer (reagir a uma DM, esconder um comentário, ligar ou desligar os comentários) sai direto e fica registrado.\n• O token nunca passa pela conversa. Você cola no campo \"Token do Instagram\", e o Claude Desktop guarda no cofre do seu computador.\n• O que chega por DM ou comentário é tratado como dado: se a mensagem mandar o Claude fazer alguma coisa, ele não obedece.\n• Usa só a API oficial da Meta, com uma conta por instalação.\n\n**O que não dá**\nA API oficial não permite curtir, seguir, ver o feed ou os seguidores de outras contas, mandar a primeira DM para quem nunca te escreveu, responder DM depois de 24 h, apagar post publicado, buscar por hashtag nem editar a legenda de um post já publicado. E o Claude só fica sabendo de DM ou comentário novo quando você pede para ele olhar.\n\n**Para começar**\nVocê precisa de uma conta profissional do Instagram e de um app seu na Meta. Na instalação, preencha o \"Token do Instagram\" e o ID da conta. O campo \"Opcional (etapa 10)\" fica em branco: ele só serve para publicar foto que está no seu computador e pode ser preenchido depois, em Configurações > Extensões > Instagram > Configurar. Ainda não tem o token? Na aba Code, digite /instagram-app-meta: a skill leva você do zero até o token, uma etapa por vez.\n\nFeito para Mac e Windows. Até agora, só foi testado no Mac.",
   "author": {
     "name": "Thales Laray",
     "url": "https://thaleslaray.com.br"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thaleslaray/instagram-claude.git"
+  },
+  "homepage": "https://github.com/thaleslaray/instagram-claude",
+  "support": "https://github.com/thaleslaray/instagram-claude/issues",
+  "keywords": [
+    "instagram",
+    "dm",
+    "comentarios",
+    "publicacao",
+    "insights"
+  ],
   "server": {
     "type": "node",
     "entry_point": "server/index.mjs",

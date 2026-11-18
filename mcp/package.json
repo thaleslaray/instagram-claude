@@ -21,6 +21,7 @@
     "guardar-token": "node scripts/guardar-token.ts",
     "conferir": "node scripts/conferir.ts",
     "pack": "npm run build && npx -y @anthropic-ai/mcpb@2.1.2 pack mcpb instagram-mcp.mcpb",
+    "pacote-da-release": "npm run pack && node scripts/pacote-da-release.mjs",
     "conferir-lancamento": "node scripts/conferir-lancamento.mjs",
     "lancar": "node scripts/lancar.mjs"
   },

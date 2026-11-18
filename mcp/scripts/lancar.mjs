@@ -3,13 +3,15 @@
 //   npm run lancar -- preparar 0.4.16
 //   npm run lancar -- publicar 0.4.16 --notas "texto" [--simular]
 //
-// preparar: confere o ponto de partida, troca a versão nos arquivos, roda o check, empacota o
-//           .mcpb UMA vez, grava o SHA-256 no INSTALL e roda a conferência. Não faz commit.
+// preparar: confere o ponto de partida, troca a versão nos 5 arquivos do pacote, roda o check,
+//           gera os três arquivos da release UMA vez (.mcpb, .sha256 e .skill) e roda a
+//           conferência. Não faz commit. INSTALL e README não mudam: não têm versão.
 // publicar: confere que a árvore está como o preparar deixou, roda a conferência de novo
-//           (sem empacotar), faz commit, tag, push e release, e confere o que foi publicado.
+//           (sem empacotar), faz commit, tag, push e release com os três arquivos, e confere o
+//           que foi publicado: o tarball da tag e o que o instalador baixa de releases/latest.
 //
-// A tag é o que o instalador baixa e ela não se move: qualquer erro achado depois dela só se
-// corrige com tag nova. Por isso a conferência vem antes, e a final olha o que foi publicado.
+// O instalador baixa da ÚLTIMA release e a tag não se move: qualquer erro achado depois dela só
+// se corrige com versão nova. Por isso a conferência vem antes, e a final olha o publicado.
 //
 // Todo comando externo passa por `externo()`: é o único ponto que o --simular intercepta.
 
@@ -18,16 +20,14 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { CAMINHO_PACOTE, conferirArvore, hashDoInstall, sha256Arquivo, versaoDoPacote } from "./lancamento/conferencia.mjs";
+import { ARQUIVOS_DA_RELEASE, conferirArvore, NOME_PACOTE, NOME_SHA256, NOME_SKILL_ZIP, sha256Arquivo, versaoDoPacote } from "./lancamento/conferencia.mjs";
 
 const RAIZ = resolve(join(dirname(fileURLToPath(import.meta.url)), "../.."));
 const MCP = join(RAIZ, "mcp");
 const REPO_PADRAO = "thaleslaray/instagram-claude";
 
-// Os arquivos que o aumento de versão muda (os mesmos do commit a5da97f).
+// Os arquivos que o aumento de versão muda. INSTALL e README não entram: não carregam versão.
 export const ARQUIVOS_DA_VERSAO = [
-  "INSTALL.md",
-  "README.md",
   "mcp/mcpb/manifest.json",
   "mcp/package-lock.json",
   "mcp/package.json",
@@ -133,19 +133,11 @@ function trocarNoArquivo(arquivo, de, para, { quantas = 0, exato = null } = {}) 
 }
 
 function trocarVersaoNosArquivos(antiga, nova) {
-  trocarNoArquivo("INSTALL.md", antiga, nova);
-  trocarNoArquivo("README.md", antiga, nova);
   trocarNoArquivo("mcp/mcpb/manifest.json", `"version": "${antiga}"`, `"version": "${nova}"`, { exato: 1 });
   trocarNoArquivo("mcp/package.json", `"version": "${antiga}"`, `"version": "${nova}"`, { exato: 1 });
   trocarNoArquivo("mcp/package-lock.json", `"version": "${antiga}"`, `"version": "${nova}"`, { quantas: 2, exato: 2 });
   trocarNoArquivo("mcp/src/versao.ts", `"${antiga}"`, `"${nova}"`, { exato: 1 });
   trocarNoArquivo("mcp/test/manifest.test.ts", `manifesto.version, "${antiga}"`, `manifesto.version, "${nova}"`, { exato: 1 });
-}
-
-function gravarHashNoInstall(hash) {
-  const antigo = hashDoInstall(RAIZ);
-  if (!antigo) throw new Falha("INSTALL.md: não achei a linha do shasum com o SHA-256 para trocar", "git checkout -- .");
-  trocarNoArquivo("INSTALL.md", antigo, hash, { exato: 1 });
 }
 
 function passo(texto) {
@@ -162,7 +154,7 @@ function preparar(versao) {
   exigirTagLivre(versao);
   console.log(`  ${atual} -> ${versao}, main limpa e igual a origin/main, tag v${versao} livre`);
 
-  const desfazer = "git checkout -- .   (o .mcpb é ignorado pelo git; pode apagar mcp/instagram-mcp.mcpb)";
+  const desfazer = `git checkout -- .   (os três arquivos da release são ignorados pelo git; pode apagar ${ARQUIVOS_DA_RELEASE.join(", ")})`;
   try {
     passo(`Trocando a versão em ${ARQUIVOS_DA_VERSAO.length} arquivos`);
     trocarVersaoNosArquivos(atual, versao);
@@ -170,13 +162,10 @@ function preparar(versao) {
     passo("npm run check");
     externo("npm", ["run", "check"], { cwd: MCP, herdar: true });
 
-    passo("npm run pack (único empacotamento)");
-    externo("npm", ["run", "pack"], { cwd: MCP, herdar: true });
-    if (!existsSync(join(RAIZ, CAMINHO_PACOTE))) throw new Falha(`${CAMINHO_PACOTE} não foi gerado`);
-
-    passo("Gravando o SHA-256 no INSTALL");
-    const hash = sha256Arquivo(join(RAIZ, CAMINHO_PACOTE));
-    gravarHashNoInstall(hash);
+    passo("npm run pacote-da-release (único empacotamento: .mcpb, .sha256 e .skill)");
+    externo("npm", ["run", "pacote-da-release"], { cwd: MCP, herdar: true });
+    for (const arquivo of ARQUIVOS_DA_RELEASE) if (!existsSync(join(RAIZ, arquivo))) throw new Falha(`${arquivo} não foi gerado`);
+    const hash = sha256Arquivo(join(RAIZ, ARQUIVOS_DA_RELEASE[0]));
 
     passo("Conferência de lançamento (com o pacote)");
     const problemas = conferirArvore(RAIZ, { exigirPacote: true });
@@ -213,7 +202,8 @@ function exigirEstadoDoPreparar(versao) {
   if (estranhos.length) throw new Falha(`há mudanças fora do que o preparar deixa:\n${estranhos.map((l) => `  ${l}`).join("\n")}`);
   const faltando = ARQUIVOS_DA_VERSAO.filter((a) => !modificados.has(a));
   if (faltando.length) throw new Falha(`o preparar deixaria modificados também: ${faltando.join(", ")}`);
-  if (!existsSync(join(RAIZ, CAMINHO_PACOTE))) throw new Falha(`${CAMINHO_PACOTE} não existe. Rode preparar ${versao} (publicar não empacota).`);
+  const ausentes = ARQUIVOS_DA_RELEASE.filter((a) => !existsSync(join(RAIZ, a)));
+  if (ausentes.length) throw new Falha(`faltam ${ausentes.join(", ")}. Rode preparar ${versao} (publicar não empacota).`);
 }
 
 function repoDoGitHub() {
@@ -244,7 +234,12 @@ async function baixar(url, destino) {
   throw new Falha(`não consegui baixar ${url} (${ultimo})`);
 }
 
-/** Baixa o que foi publicado e confere do mesmo jeito que a árvore local. Devolve os problemas. */
+/**
+ * Confere o que foi publicado, de dois jeitos. (a) O tarball da tag: as regras de texto, versão e
+ * skill valem nele. (b) O que o instalador baixa, de releases/latest/download: a última release
+ * tem de ser esta tag, o .mcpb tem de bater com o .sha256 e o .skill tem de ser igual à skill/
+ * do tarball. Devolve os problemas.
+ */
 async function conferirPublicado(versao) {
   const repo = repoDoGitHub();
   const tag = `v${versao}`;
@@ -260,16 +255,24 @@ async function conferirPublicado(versao) {
     const raizExtraida = join(extraido, pastaDoTarball);
     if (!existsSync(raizExtraida)) return [`o tarball da tag ${tag} não tem a pasta ${pastaDoTarball}`];
 
-    const pacote = join(raizExtraida, CAMINHO_PACOTE);
-    mkdirSync(dirname(pacote), { recursive: true });
-    await baixar(`https://github.com/${repo}/releases/download/${tag}/instagram-mcp.mcpb`, pacote);
+    console.log(`  (a) tarball da tag ${tag}: regras de texto, versão e skill`);
+    const problemas = conferirArvore(raizExtraida, { exigirPacote: false }).map((p) => `tarball da tag: ${p}`);
 
-    const hashBaixado = sha256Arquivo(pacote);
-    const hashInstall = hashDoInstall(raizExtraida);
-    console.log(`  SHA-256 do .mcpb da release: ${hashBaixado}`);
-    console.log(`  SHA-256 no INSTALL da tag:   ${hashInstall}`);
-    const problemas = conferirArvore(raizExtraida, { exigirPacote: true });
-    if (hashBaixado !== hashInstall && !problemas.some((p) => /SHA-256/.test(p))) problemas.push("o SHA-256 do .mcpb da release não é o do INSTALL da tag");
+    const ultima = externo("gh", ["release", "view", "--repo", repo, "--json", "tagName", "--jq", ".tagName"]);
+    console.log(`  (b) última release do GitHub: ${ultima}`);
+    if (ultima !== tag) problemas.push(`a última release do GitHub é ${ultima}, esperava ${tag} (o instalador baixa da última)`);
+
+    // Os três arquivos, pelo mesmo endereço que o INSTALL usa, no lugar em que a conferência os lê.
+    const base = `https://github.com/${repo}/releases/latest/download`;
+    mkdirSync(join(raizExtraida, "mcp"), { recursive: true });
+    for (const arquivo of ARQUIVOS_DA_RELEASE) {
+      await baixar(`${base}/${arquivo.split("/").pop()}`, join(raizExtraida, arquivo));
+    }
+    const hashBaixado = sha256Arquivo(join(raizExtraida, ARQUIVOS_DA_RELEASE[0]));
+    console.log(`  SHA-256 do ${NOME_PACOTE} baixado de releases/latest: ${hashBaixado}`);
+    console.log(`  ${NOME_SHA256} baixado: ${readFileSync(join(raizExtraida, ARQUIVOS_DA_RELEASE[1]), "utf8").trim()}`);
+    console.log(`  (b) ${NOME_SKILL_ZIP} comparado com a skill/ do tarball`);
+    problemas.push(...conferirArvore(raizExtraida, { exigirPacote: true }).filter((p) => !problemas.includes(`tarball da tag: ${p}`)).map((p) => `release baixada: ${p}`));
     return problemas;
   } finally {
     rmSync(pasta, { recursive: true, force: true });
@@ -286,7 +289,7 @@ async function publicar(versao, notas) {
   exigirMainLimpaEAtualizada({ exigirArvoreLimpa: false });
   exigirEstadoDoPreparar(versao);
   exigirTagLivre(versao);
-  console.log(`  versão ${versao} nos arquivos, só os ${ARQUIVOS_DA_VERSAO.length} arquivos esperados modificados, .mcpb presente`);
+  console.log(`  versão ${versao} nos arquivos, só os ${ARQUIVOS_DA_VERSAO.length} arquivos esperados modificados, os três arquivos da release presentes`);
 
   passo("Conferência de lançamento (com o pacote, sem empacotar de novo)");
   const problemas = conferirArvore(RAIZ, { exigirPacote: true });
@@ -305,7 +308,7 @@ async function publicar(versao, notas) {
     desfazer = `git tag -d ${tag} && git reset --soft HEAD~1   (nada foi enviado ainda)`;
     externo("git", ["push", "origin", "main", tag], { escreve: true });
     desfazer = `o commit e a tag ${tag} JÁ ESTÃO no remoto; a tag não se move: corrija com uma versão nova`;
-    externo("gh", ["release", "create", tag, join(RAIZ, CAMINHO_PACOTE), "--title", tag, "--notes", notas, "--verify-tag"], { escreve: true });
+    externo("gh", ["release", "create", tag, ...ARQUIVOS_DA_RELEASE.map((a) => join(RAIZ, a)), "--title", tag, "--notes", notas, "--verify-tag"], { escreve: true });
   } catch (erro) {
     if (erro instanceof Falha) erro.desfazer = desfazer;
     throw erro;
@@ -313,7 +316,7 @@ async function publicar(versao, notas) {
 
   if (simular) {
     console.log("\nSimulação terminada: nenhum comando que escreve foi rodado.");
-    console.log(`Depois do release, a fase real baixaria archive/refs/tags/${tag}.tar.gz e o .mcpb da release e conferiria os dois.`);
+    console.log(`Depois do release, a fase real baixaria archive/refs/tags/${tag}.tar.gz e os três arquivos de releases/latest/download, confirmaria que a última release é ${tag} e conferiria tudo.`);
     return;
   }
 
@@ -322,7 +325,7 @@ async function publicar(versao, notas) {
   if (publicados.length) {
     console.error(`\nA VERSÃO PUBLICADA ${tag} ESTÁ COM DEFEITO:`);
     for (const p of publicados) console.error(`  - ${p}`);
-    console.error("A tag não se move: corrija e lance uma versão nova.");
+    console.error("A tag não se move e o instalador baixa da última release: corrija e lance uma versão nova.");
     process.exitCode = 1;
     return;
   }

@@ -4,12 +4,14 @@
 
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { after, before, describe, it } from "node:test";
 import { crc32 } from "node:zlib";
-import { conferirArvore, hashDoInstall, REGRAS } from "../scripts/lancamento/conferencia.mjs";
+import { ARQUIVOS_DA_RELEASE, arquivosDaSkill, conferirArvore, REGRAS } from "../scripts/lancamento/conferencia.mjs";
+import { gerarSha256, gerarSkill } from "../scripts/lancamento/pacote.mjs";
 
 const REPO = join(import.meta.dirname, "../..");
 const LIDOS = ["mcp/package.json", "mcp/package-lock.json", "mcp/mcpb/manifest.json", "mcp/src/versao.ts", "mcp/test/manifest.test.ts", "INSTALL.md", "README.md", "skill"];
@@ -47,7 +49,7 @@ function zipDeUmArquivo(nome: string, conteudo: string): Buffer {
 let base: string;
 let n = 0;
 
-/** Árvore mínima válida: cópia dos arquivos que a conferência lê, mais um .mcpb de mentira com o hash certo no INSTALL. */
+/** Árvore mínima válida: cópia dos arquivos que a conferência lê, mais um .mcpb de mentira, o .sha256 e o .skill gerados. */
 function montar(): string {
   const raiz = join(base, `arvore-${n++}`);
   for (const caminho of LIDOS) {
@@ -57,7 +59,8 @@ function montar(): string {
   const versao = JSON.parse(readFileSync(join(raiz, "mcp/package.json"), "utf8")).version;
   const pacote = zipDeUmArquivo("manifest.json", JSON.stringify({ version: versao }));
   writeFileSync(join(raiz, "mcp/instagram-mcp.mcpb"), pacote);
-  trocar(raiz, "INSTALL.md", /[0-9a-f]{64}(?=  \$PARCIAL)/, createHash("sha256").update(pacote).digest("hex"));
+  gerarSha256(raiz);
+  gerarSkill(raiz);
   return raiz;
 }
 
@@ -75,6 +78,7 @@ function acusa(problemas: string[], esperado: RegExp) {
 }
 
 const conferir = (raiz: string, exigirPacote = true) => conferirArvore(raiz, { exigirPacote });
+const versaoReal = (): string => JSON.parse(readFileSync(join(REPO, "mcp/package.json"), "utf8")).version;
 
 before(() => {
   base = mkdtempSync(join(tmpdir(), "lancamento-teste-"));
@@ -82,11 +86,12 @@ before(() => {
 after(() => rmSync(base, { recursive: true, force: true }));
 
 describe("conferência de lançamento", () => {
-  it("a árvore real passa nas regras que não dependem do pacote", () => {
-    // O .mcpb é ignorado pelo git e pode ser de outra versão (o `lancar preparar` roda os testes
-    // com a versão já trocada e o pacote antigo ainda em disco). Quem confere o pacote de verdade
-    // é o `conferir-lancamento --exigir-pacote`, depois do `npm run pack`.
-    const semPacote = REGRAS.filter(([nome]) => !/pacote \.mcpb/.test(nome));
+  it("a árvore real passa nas regras que não dependem do pacote da release", () => {
+    // Os três arquivos da release são ignorados pelo git e podem ser de outra versão (o `lancar
+    // preparar` roda os testes com a versão já trocada e o pacote antigo ainda em disco). Quem
+    // confere o pacote de verdade é o `conferir-lancamento --exigir-pacote`, depois do
+    // `npm run pacote-da-release`.
+    const semPacote = REGRAS.filter(([nome]) => !/pacote da release/.test(nome));
     assert.equal(semPacote.length, REGRAS.length - 1);
     assert.deepEqual(semPacote.flatMap(([, regra]) => regra(REPO, { exigirPacote: false })), []);
   });
@@ -121,36 +126,53 @@ describe("conferência de lançamento", () => {
     });
   });
 
-  describe("regra 2: INSTALL e README presos à versão", () => {
-    const versao = JSON.parse(readFileSync(join(REPO, "mcp/package.json"), "utf8")).version;
-    it("acusa versão antiga numa URL archive do INSTALL", () => {
+  describe("regra 2: INSTALL e README sem versão, baixando da última release", () => {
+    const versao = versaoReal();
+    it("o INSTALL e o README reais não têm a versão do projeto", () => {
+      for (const arquivo of ["INSTALL.md", "README.md"]) assert.equal(readFileSync(join(REPO, arquivo), "utf8").includes(versao), false, arquivo);
+    });
+    it("acusa releases/download/vX.Y.Z no INSTALL (e a falta do endereço latest)", () => {
       const raiz = montar();
-      trocar(raiz, "INSTALL.md", `refs/tags/v${versao}.tar.gz`, "refs/tags/v0.0.1.tar.gz");
+      trocar(raiz, "INSTALL.md", 'BASE="https://github.com/thaleslaray/instagram-claude/releases/latest/download"', `BASE="https://github.com/thaleslaray/instagram-claude/releases/download/v${versao}"`);
       const problemas = conferir(raiz);
-      acusa(problemas, /INSTALL\.md, linha \d+: versão v0\.0\.1/);
-      acusa(problemas, /INSTALL\.md: não achei URL archive\/refs\/tags\//);
+      acusa(problemas, /INSTALL\.md, linha \d+: versão v\d+\.\d+\.\d+/);
+      acusa(problemas, /INSTALL\.md, linha \d+: releases\/download\/v/);
+      acusa(problemas, /INSTALL\.md: não achei o endereço releases\/latest\/download\/instagram-mcp\.mcpb/);
     });
-    it("acusa versão antiga na URL blob do INSTALL", () => {
+    it("acusa tarball de uma tag no INSTALL", () => {
       const raiz = montar();
-      trocar(raiz, "INSTALL.md", `/blob/v${versao}/`, "/blob/v0.0.1/");
-      acusa(conferir(raiz), /INSTALL\.md, linha \d+: versão v0\.0\.1/);
-    });
-    it("acusa a pasta instagram-claude-X.Y.Z/skill com versão antiga", () => {
-      const raiz = montar();
-      trocar(raiz, "INSTALL.md", `instagram-claude-${versao}/skill`, "instagram-claude-0.0.1/skill");
-      acusa(conferir(raiz), /INSTALL\.md, linha \d+: versão v?0\.0\.1/);
-    });
-    it('acusa o texto "vale para a versão" com versão antiga', () => {
-      const raiz = montar();
-      trocar(raiz, "INSTALL.md", `vale para a versão **v${versao}**`, "vale para a versão **v0.0.1**");
-      acusa(conferir(raiz), /INSTALL\.md: não achei texto "vale para a versão"/);
-    });
-    it("acusa a URL do INSTALL no README com versão antiga", () => {
-      const raiz = montar();
-      trocar(raiz, "README.md", `instagram-claude/v${versao}/INSTALL.md`, "instagram-claude/v0.0.1/INSTALL.md");
+      trocar(raiz, "INSTALL.md", "releases/latest/download/instagram-app-meta.skill", "archive/refs/tags/v0.0.1.tar.gz");
       const problemas = conferir(raiz);
-      acusa(problemas, /README\.md, linha \d+: versão v0\.0\.1/);
-      acusa(problemas, /README\.md: não achei URL do INSTALL\.md/);
+      acusa(problemas, /INSTALL\.md, linha \d+: archive\/refs\/tags/);
+      acusa(problemas, /INSTALL\.md: não achei o endereço releases\/latest\/download\/instagram-app-meta\.skill/);
+    });
+    it("acusa link blob/vX.Y.Z no INSTALL", () => {
+      const raiz = montar();
+      trocar(raiz, "INSTALL.md", "/blob/main/", "/blob/v0.0.1/");
+      acusa(conferir(raiz), /INSTALL\.md, linha \d+: blob\/v/);
+    });
+    it("acusa o endereço do .sha256 ou do .skill que falta no INSTALL", () => {
+      const raiz = montar();
+      trocar(raiz, "INSTALL.md", '"$BASE/instagram-mcp.mcpb.sha256"', '"$BASE/outro.sha256"');
+      acusa(conferir(raiz), /INSTALL\.md: não achei o endereço releases\/latest\/download\/instagram-mcp\.mcpb\.sha256/);
+    });
+    it("acusa SHA-256 escrito no INSTALL", () => {
+      const raiz = montar();
+      trocar(raiz, "INSTALL.md", "## Passo 1", `${"a".repeat(64)}\n\n## Passo 1`);
+      acusa(conferir(raiz), /INSTALL\.md: tem um SHA-256 escrito/);
+    });
+    it("acusa o README apontando para o INSTALL de uma tag", () => {
+      const raiz = montar();
+      trocar(raiz, "README.md", "instagram-claude/main/INSTALL.md", `instagram-claude/v${versao}/INSTALL.md`);
+      const problemas = conferir(raiz);
+      acusa(problemas, /README\.md, linha \d+: versão v\d+\.\d+\.\d+/);
+      acusa(problemas, /README\.md, linha \d+: raw\.githubusercontent\.com\/\.\.\.\/v/);
+      acusa(problemas, /README\.md: não achei a URL do INSTALL\.md na main/);
+    });
+    it("acusa a versão do projeto, sem v, solta no INSTALL", () => {
+      const raiz = montar();
+      trocar(raiz, "INSTALL.md", "## Passo 1", `Pasta instagram-claude-${versao}.\n\n## Passo 1`);
+      acusa(conferir(raiz), /INSTALL\.md, linha \d+: versão /);
     });
     it("acusa outra versão do projeto solta no texto, mas não a de pacote fixado nem a da Graph", () => {
       const raiz = montar();
@@ -266,29 +288,80 @@ describe("conferência de lançamento", () => {
     });
   });
 
-  describe("regra 6: pacote", () => {
-    it("acusa hash trocado no INSTALL", () => {
+  describe("regra 6: pacote da release", () => {
+    const sha = "mcp/instagram-mcp.mcpb.sha256";
+    const zipSkill = (raiz: string) => join(raiz, "mcp/instagram-app-meta.skill");
+    it("a lista de arquivos da release tem os três nomes fixos", () => {
+      assert.deepEqual(ARQUIVOS_DA_RELEASE, ["mcp/instagram-mcp.mcpb", "mcp/instagram-mcp.mcpb.sha256", "mcp/instagram-app-meta.skill"]);
+    });
+    it("o .sha256 gerado tem uma linha <sha256>  instagram-mcp.mcpb", () => {
       const raiz = montar();
-      trocar(raiz, "INSTALL.md", /[0-9a-f]{64}(?=  \$PARCIAL)/, "0".repeat(64));
+      const hash = createHash("sha256").update(readFileSync(join(raiz, "mcp/instagram-mcp.mcpb"))).digest("hex");
+      assert.equal(readFileSync(join(raiz, sha), "utf8"), `${hash}  instagram-mcp.mcpb\n`);
+    });
+    it("o .skill gerado tem a raiz instagram-app-meta/ e não leva .DS_Store nem .gitignore", () => {
+      const raiz = montar();
+      const lista = execFileSync("unzip", ["-Z1", zipSkill(raiz)], { encoding: "utf8" }).split("\n").filter(Boolean);
+      assert.ok(lista.includes("instagram-app-meta/SKILL.md"));
+      assert.ok(lista.some((e) => e.startsWith("instagram-app-meta/references/etapa-00")));
+      assert.ok(lista.every((e) => e.startsWith("instagram-app-meta/")));
+      assert.equal(lista.some((e) => /\.DS_Store|\.gitignore/.test(e)), false);
+      assert.equal(lista.length, arquivosDaSkill(join(REPO, "skill")).length);
+    });
+    it("acusa .sha256 com hash errado", () => {
+      const raiz = montar();
+      writeFileSync(join(raiz, sha), `${"0".repeat(64)}  instagram-mcp.mcpb\n`);
       acusa(conferir(raiz), /instagram-mcp\.mcpb: SHA-256 [0-9a-f]{64}, esperava 0{64}/);
     });
-    it("acusa pacote ausente só quando exigido; sem ele, basta o INSTALL ter um hash de 64 hex", () => {
+    it("acusa .sha256 fora do formato (nome errado, sem hash, linha a mais)", () => {
       const raiz = montar();
-      rmSync(join(raiz, "mcp/instagram-mcp.mcpb"));
-      acusa(conferir(raiz, true), /instagram-mcp\.mcpb: arquivo não existe/);
+      const hash = readFileSync(join(raiz, sha), "utf8").slice(0, 64);
+      for (const ruim of [`${hash}  outro.mcpb\n`, "abc123\n", `${hash}  instagram-mcp.mcpb\n${hash}  instagram-mcp.mcpb\n`]) {
+        writeFileSync(join(raiz, sha), ruim);
+        acusa(conferir(raiz), /instagram-mcp\.mcpb\.sha256: esperava uma linha/);
+      }
+    });
+    it("acusa pacote ausente só quando exigido; sem exigir, confere o que existir", () => {
+      const raiz = montar();
+      for (const arquivo of ARQUIVOS_DA_RELEASE) rmSync(join(raiz, arquivo));
+      const problemas = conferir(raiz, true);
+      for (const arquivo of ARQUIVOS_DA_RELEASE) acusa(problemas, new RegExp(`${arquivo.replace(/\./g, "\\.")}: arquivo não existe`));
       assert.deepEqual(conferir(raiz, false), []);
-      trocar(raiz, "INSTALL.md", /[0-9a-f]{64}(?=  \$PARCIAL)/, "abc123");
-      acusa(conferir(raiz, false), /INSTALL\.md: não achei a linha do `shasum -a 256 -c`/);
+      // Só o .sha256, ruim, sem exigir: ainda é conferido.
+      writeFileSync(join(raiz, sha), "abc123\n");
+      acusa(conferir(raiz, false), /instagram-mcp\.mcpb\.sha256: esperava uma linha/);
     });
     it("acusa manifest.json de dentro do pacote com versão diferente (mesmo com o hash certo)", () => {
       const raiz = montar();
-      const pacote = zipDeUmArquivo("manifest.json", JSON.stringify({ version: "9.9.9" }));
-      writeFileSync(join(raiz, "mcp/instagram-mcp.mcpb"), pacote);
-      trocar(raiz, "INSTALL.md", /[0-9a-f]{64}(?=  \$PARCIAL)/, createHash("sha256").update(pacote).digest("hex"));
+      writeFileSync(join(raiz, "mcp/instagram-mcp.mcpb"), zipDeUmArquivo("manifest.json", JSON.stringify({ version: "9.9.9" })));
+      gerarSha256(raiz);
       acusa(conferir(raiz), /manifest\.json de dentro tem versão 9\.9\.9, esperava/);
     });
-    it("hashDoInstall devolve o hash escrito no INSTALL", () => {
-      assert.match(hashDoInstall(REPO) ?? "", /^[0-9a-f]{64}$/);
+    it("acusa .skill sem um arquivo de skill/", () => {
+      const raiz = montar();
+      execFileSync("zip", ["-q", "-d", zipSkill(raiz), "instagram-app-meta/references/etapa-03-ligar-ao-portfolio.md"]);
+      acusa(conferir(raiz), /instagram-app-meta\.skill: falta instagram-app-meta\/references\/etapa-03-ligar-ao-portfolio\.md/);
+    });
+    it("acusa .skill com conteúdo diferente de skill/ (skill mudou depois de empacotar)", () => {
+      const raiz = montar();
+      trocar(raiz, "skill/references/etapa-04-caso-de-uso.md", "# Etapa 4:", "# Etapa 4 (editada):");
+      acusa(conferir(raiz), /instagram-app-meta\.skill: instagram-app-meta\/references\/etapa-04-caso-de-uso\.md tem conteúdo diferente/);
+    });
+    it("acusa .skill com arquivo a mais (.DS_Store) e com arquivo fora da pasta instagram-app-meta/", () => {
+      const raiz = montar();
+      const area = mkdtempSync(join(base, "extra-"));
+      mkdirSync(join(area, "instagram-app-meta"));
+      writeFileSync(join(area, "instagram-app-meta/.DS_Store"), "lixo");
+      writeFileSync(join(area, "solto.md"), "fora");
+      execFileSync("zip", ["-q", zipSkill(raiz), "instagram-app-meta/.DS_Store", "solto.md"], { cwd: area });
+      const problemas = conferir(raiz);
+      acusa(problemas, /tem instagram-app-meta\/\.DS_Store, que não está em skill\//);
+      acusa(problemas, /solto\.md fora da pasta instagram-app-meta\//);
+    });
+    it("acusa .skill que não é um zip", () => {
+      const raiz = montar();
+      writeFileSync(zipSkill(raiz), "isto não é um zip");
+      acusa(conferir(raiz), /instagram-app-meta\.skill: não consegui abrir o zip/);
     });
   });
 });

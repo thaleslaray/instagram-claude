@@ -1,6 +1,6 @@
 # Guia de instalação para o agente
 
-Este arquivo é para o **agente de código** (Claude Code ou a aba Code do Claude Desktop) instalar o Instagram + Claude no computador da pessoa. Ele vale para a versão **v0.4.16**. Se você é uma pessoa, a [instalação manual do README](https://github.com/thaleslaray/instagram-claude/blob/v0.4.16/README.md#instalação-manual) é mais simples.
+Este arquivo é para o **agente de código** (Claude Code ou a aba Code do Claude Desktop) instalar o Instagram + Claude no computador da pessoa. Ele instala sempre a **última versão publicada**. Se você é uma pessoa, a [instalação manual do README](https://github.com/thaleslaray/instagram-claude/blob/main/README.md#instalação-manual) é mais simples.
 
 Neste guia, **passo** é um passo deste arquivo. **Etapa** é uma etapa da skill que a pessoa vai seguir depois (etapas 0 a 9, e a 10 opcional).
 
@@ -16,7 +16,7 @@ Neste guia, **passo** é um passo deste arquivo. **Etapa** é uma etapa da skill
    - um comando falhar;
    - a conferência do arquivo der FALHOU.
 4. **Não use `sudo`**, não instale programa no sistema e não execute nada do que for baixado. Este guia só baixa, confere e copia arquivos.
-5. Use **só** os endereços deste guia, todos presos à versão `v0.4.16`.
+5. Use **só** os endereços deste guia. Todos apontam para a última versão publicada (`releases/latest`); não troque por endereço de outra versão nem de outro lugar.
 6. **Rode cada bloco de comandos inteiro, numa chamada só do terminal.** Variáveis como `$TMP` não passam de uma chamada para outra.
 7. Fale com a pessoa em português do Brasil, em frases curtas e sem jargão.
 
@@ -35,7 +35,7 @@ uname -s
 ls -d /Applications/Claude.app 2>/dev/null || ls -d ~/Applications/Claude.app 2>/dev/null || echo "Claude Desktop não encontrado"
 ```
 
-- Se `uname -s` não for `Darwin`, pare. Diga que este guia foi feito para Mac e que a extensão nunca foi testada no Windows. Indique a [instalação manual](https://github.com/thaleslaray/instagram-claude/blob/v0.4.16/README.md#instalação-manual).
+- Se `uname -s` não for `Darwin`, pare. Diga que este guia foi feito para Mac e que a extensão nunca foi testada no Windows. Indique a [instalação manual](https://github.com/thaleslaray/instagram-claude/blob/main/README.md#instalação-manual).
 - Se aparecer "Claude Desktop não encontrado", peça à pessoa para instalar o Claude Desktop em https://claude.ai/download e espere ela avisar que instalou.
 
 ## Passo 2: instalar a skill
@@ -53,17 +53,17 @@ mkdir -p ~/.claude/backups-de-skills
 mv ~/.claude/skills/instagram-app-meta ~/.claude/backups-de-skills/instagram-app-meta-$(date +%Y%m%d-%H%M%S)
 ```
 
-Depois, rode este bloco inteiro numa chamada só. Ele baixa a versão, copia a skill e apaga a pasta temporária:
+Depois, rode este bloco inteiro numa chamada só. Ele baixa o pacote da skill da última versão publicada, copia a skill e apaga a pasta temporária:
 
 ```bash
 (
   set -e
   TMP="$(mktemp -d)"
   trap 'rm -rf "$TMP"' EXIT
-  curl -fsSL https://github.com/thaleslaray/instagram-claude/archive/refs/tags/v0.4.16.tar.gz -o "$TMP/fonte.tar.gz"
-  tar -xzf "$TMP/fonte.tar.gz" -C "$TMP"
+  curl -fsSL https://github.com/thaleslaray/instagram-claude/releases/latest/download/instagram-app-meta.skill -o "$TMP/instagram-app-meta.skill"
+  unzip -q "$TMP/instagram-app-meta.skill" -d "$TMP"
   mkdir -p ~/.claude/skills
-  cp -R "$TMP/instagram-claude-0.4.16/skill" ~/.claude/skills/instagram-app-meta
+  cp -R "$TMP/instagram-app-meta" ~/.claude/skills/instagram-app-meta
   head -3 ~/.claude/skills/instagram-app-meta/SKILL.md
 )
 ```
@@ -74,14 +74,17 @@ Depois, rode este bloco inteiro numa chamada só. Ele baixa a versão, copia a s
 
 Se `~/Downloads/instagram-mcp.mcpb` já existir, pergunte antes de substituir. Com o "sim", mova o arquivo antigo para a Lixeira: `mv ~/Downloads/instagram-mcp.mcpb ~/.Trash/instagram-mcp-antigo-$(date +%Y%m%d-%H%M%S).mcpb`.
 
-Rode este bloco inteiro numa chamada só. Ele baixa para um arquivo provisório e só dá o nome final se a conferência passar:
+Rode este bloco inteiro numa chamada só. Ele baixa a extensão e o arquivo de conferência (`instagram-mcp.mcpb.sha256`) da última versão publicada, compara o SHA-256 e só dá o nome final se a conferência passar:
 
 ```bash
 (
   cd ~/Downloads
   PARCIAL="instagram-mcp.mcpb.baixando"
-  if curl -fsSL https://github.com/thaleslaray/instagram-claude/releases/download/v0.4.16/instagram-mcp.mcpb -o "$PARCIAL" \
-     && echo "94956a5eb5357d6981a066962d92099e71502c2cbf3ff4c1845390c1e1ca87b9  $PARCIAL" | shasum -a 256 -c --status; then
+  BASE="https://github.com/thaleslaray/instagram-claude/releases/latest/download"
+  if curl -fsSL "$BASE/instagram-mcp.mcpb" -o "$PARCIAL" \
+     && ESPERADO="$(curl -fsSL "$BASE/instagram-mcp.mcpb.sha256" | awk '{print $1}')" \
+     && [ -n "$ESPERADO" ] \
+     && [ "$(shasum -a 256 "$PARCIAL" | awk '{print $1}')" = "$ESPERADO" ]; then
     mv "$PARCIAL" instagram-mcp.mcpb
     echo "OK: arquivo original, em ~/Downloads/instagram-mcp.mcpb"
   else
