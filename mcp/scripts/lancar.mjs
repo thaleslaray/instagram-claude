@@ -255,8 +255,10 @@ async function conferirPublicado(versao) {
     mkdirSync(extraido);
     await baixar(`https://github.com/${repo}/archive/refs/tags/${tag}.tar.gz`, tarball);
     externo("tar", ["-xzf", tarball, "-C", extraido]);
-    const raizExtraida = join(extraido, `instagram-claude-${versao}`);
-    if (!existsSync(raizExtraida)) return [`o tarball da tag ${tag} não tem a pasta instagram-claude-${versao}`];
+    // O GitHub nomeia a pasta do tarball como <nome do repositório>-<versão sem o v>.
+    const pastaDoTarball = `${repo.split("/")[1]}-${versao}`;
+    const raizExtraida = join(extraido, pastaDoTarball);
+    if (!existsSync(raizExtraida)) return [`o tarball da tag ${tag} não tem a pasta ${pastaDoTarball}`];
 
     const pacote = join(raizExtraida, CAMINHO_PACOTE);
     mkdirSync(dirname(pacote), { recursive: true });
