@@ -1,6 +1,6 @@
 {
   "name": "instagram-mcp",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "private": true,
   "description": "Servidor MCP local para o Claude ler e operar uma conta profissional do Instagram pela Graph API oficial da Meta",
   "type": "module",
