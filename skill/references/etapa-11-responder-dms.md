@@ -2,7 +2,7 @@
 
 **Quer que o Claude responda DMs de qualquer pessoa, não só de quem é testador do app? Então faça esta etapa.** Quem só lê DMs, comenta, publica ou vê números pula esta etapa.
 
-Por que precisa: a Meta só deixa o app responder uma DM se a conta estava com a **"Assinatura do webhook"** ligada quando a mensagem chegou. Webhook é um endereço na internet que a Meta avisa toda vez que chega mensagem. Para ligar a assinatura, a Meta exige esse endereço. Sem ele, a resposta falha com o erro `(#10)` "fora do período permitido", mesmo dentro de 24 horas.
+Por que precisa: a Meta só deixa o app responder uma DM se a conta estava com a **"Assinatura do webhook"** ligada quando a mensagem chegou. Webhook é um endereço na internet que a Meta avisa toda vez que chega mensagem. Para ligar a assinatura, a Meta exige esse endereço. Sem ele, a resposta falha com o erro `(#10)` "fora do período permitido", mesmo dentro de 24 horas. E o app precisa estar publicado (11c): em desenvolvimento, a Meta só manda esse aviso para quem tem papel no app.
 
 O endereço sai de um botão, de graça, na conta da Cloudflare do aluno. Ele só responde "ok" para a Meta: não guarda nem lê nenhuma mensagem. O Claude continua lendo e respondendo pela extensão, como na etapa 9.
 
@@ -45,13 +45,20 @@ O passo **4, "Conclua a análise do app"**, não precisa: app que só opera a co
 - **"não conseguiu validar" o endereço:** confira de novo com o `curl` do 11a. Tem que estar inteiro, com `https`.
 - **MCP da Meta indisponível:** o aluno faz no painel. No passo **3, "Configurar webhooks"**, cola o endereço em **URL de callback** e escreve `instagram-claude` em **Verificar token**. Depois clica em **Verificar e salvar** e assina **`messages`** na lista.
 
-## 11c. App publicado (modo Live)
+## 11c. Publicar o app (modo Live): obrigatório
 
-Com o app em desenvolvimento, a Meta só entrega e libera DMs de quem tem papel no app (como o testador da etapa 7). Para responder qualquer pessoa, o app precisa estar **publicado**.
+Sem publicar, esta etapa não funciona. A Meta só manda o aviso de mensagem (webhook) com o app **publicado** (Live). Em desenvolvimento, o aviso só vem de quem tem papel no app, como o testador da etapa 7. Sem aviso, a DM de quem não tem papel não fica liberada, e a resposta falha com o mesmo `(#10)`.
 
-1. Confira pelo MCP da Meta (`devtools_app`) em que modo o app está.
-2. Se estiver em desenvolvimento, ele muda para **Live** na chave do topo do painel do app. Explique antes o que muda: o app passa a valer para contas sem papel nele. Só mude depois do "pode" dele.
-3. Se a Meta pedir dados que faltam (por exemplo ícone, categoria ou URL de política de privacidade), o painel diz quais. Ele preenche e tenta de novo.
+Publicar **não** é a análise do app (App Review). É só uma chave no painel. App que opera só a conta da própria empresa continua sem precisar de análise.
+
+1. **Veja o modo.** `devtools_app` com `action: "basic_settings"` e o `app_id`. Se vier `is_live: true`, o app já está publicado: pule para o 11d.
+2. **Veja o que falta.** Na mesma resposta:
+   - **`privacy_policy_url`**: sem essa URL a Meta não publica. Se vier `null`, o aluno precisa de uma página com a política de privacidade dele (no site dele, por exemplo). Ele cola o endereço em **Configurações do app > Básico > URL da Política de Privacidade** e salva.
+   - **`category`**: se vier `null`, ele escolhe uma categoria no mesmo lugar.
+   - Ícone não precisa.
+3. **Explique e peça o "pode".** Diga assim: "Publicar faz o app valer para quem não tem papel nele. O app continua ligado só à sua conta do Instagram." Com o "pode", ele publica: no menu da esquerda, **Publicar**. Em apps mais antigos, a chave **Modo do app** fica no topo e vai de Desenvolvimento para **Live**.
+4. **Se o painel recusar,** ele mostra o que falta. Às vezes pede também a **URL de exclusão de dados**: serve uma página que diga como pedir a exclusão. Ele preenche e tenta de novo.
+5. **Confira.** `basic_settings` de novo tem que dizer `is_live: true`.
 
 ## 11d. Testar com uma DM nova
 
