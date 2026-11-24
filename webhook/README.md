@@ -19,13 +19,14 @@ Este template cria esse endereço na sua conta da Cloudflare, de graça. Ele nã
 ## Passo a passo
 
 1. Clique no botão "Deploy to Cloudflare" acima.
-2. Entre na Cloudflare e conecte o GitHub quando ela pedir. Ela cria uma cópia deste projeto no seu GitHub.
-3. Clique em "Create and deploy" e espere terminar. Copie o endereço que aparece, algo como `https://instagram-webhook.SEU-NOME.workers.dev`.
-4. Abra o endereço no navegador. Se aparecer `forbidden`, está certo: é a resposta para quem não é a Meta. Se der erro 523, espere um minuto.
-5. No painel da Meta (developers.facebook.com): seu app > Casos de uso > Instagram > Personalizar > "API setup with Instagram login" (em alguns apps o nome é "API setup with Unified login") > passo 3, "Configurar webhooks". Cole o endereço em "URL de callback" e escreva `instagram-claude` em "Verificar token". Clique em "Verificar e salvar".
-6. Na lista de campos que aparece, assine `messages`.
-7. Ainda na mesma página, no passo 2, ligue a chave "Assinatura do webhook" da sua conta do Instagram.
-8. Teste com uma DM NOVA. Mensagens que chegaram antes de ligar a assinatura não podem ser respondidas.
+2. Entre na Cloudflare. Em **Git account**, escolha a sua conta do GitHub. Na primeira vez, clique em **New GitHub connection** e autorize; no GitHub, escolha **All repositories**. A Cloudflare cria uma cópia deste projeto no seu GitHub (marcar **Create private Git repository** é opcional).
+3. Deixe o resto como está, inclusive o campo `VERIFY_TOKEN`, que já vem com `instagram-claude`.
+4. Clique em **Deploy** e espere terminar. Copie o endereço que aparece, algo como `https://instagram-webhook.SEU-NOME.workers.dev`.
+5. Abra o endereço no navegador. Se aparecer `forbidden`, está certo: é a resposta para quem não é a Meta. Se der erro 523, espere um minuto.
+6. No painel da Meta (developers.facebook.com): seu app > Casos de uso > Instagram > Personalizar > "API setup with Unified login" (em alguns apps o nome é "API setup with Instagram login") > passo 3, "Configurar webhooks". Cole o endereço em "URL de callback" e escreva `instagram-claude` em "Verificar token". Clique em "Verificar e salvar".
+7. Na lista de campos que aparece, assine `messages`.
+8. Ainda na mesma página, no passo 2, na coluna "Assinatura do webhook", deixe a sua conta do Instagram como **Ativado**. O passo 4, "Conclua a análise do app", não precisa: app só para a sua própria conta dispensa a análise.
+9. Teste com uma DM NOVA. Mensagens que chegaram antes de ligar a assinatura não podem ser respondidas.
 
 ## Faz parte do Instagram + Claude
 

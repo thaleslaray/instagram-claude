@@ -11,8 +11,8 @@ O endereço sai de um botão, de graça, na conta da Cloudflare do aluno. Ele s�
 O aluno precisa de conta grátis na Cloudflare (sem cartão) e de conta no GitHub. Se não tiver, ele cria agora em https://dash.cloudflare.com/sign-up e https://github.com/signup.
 
 1. Mande o link do botão: https://deploy.workers.cloudflare.com/?url=https://github.com/thaleslaray/instagram-claude/tree/main/webhook
-2. Ele entra na Cloudflare e conecta o GitHub quando ela pedir. Ela cria uma cópia do projeto no GitHub dele; isso é esperado.
-3. Ele clica em **Create and deploy** e espera terminar.
+2. Ele entra na Cloudflare. Em **Git account**, escolhe a conta do GitHub dele. Na primeira vez, clica em **New GitHub connection** e autoriza; no GitHub, escolhe **All repositories** (com "Only select repositories" o app pode não alcançar o repositório novo). A Cloudflare cria uma cópia do projeto no GitHub dele; isso é esperado. Marcar **Create private Git repository** é opcional.
+3. O campo **`VERIFY_TOKEN`** já vem com `instagram-claude`: deixar como está, e o resto também. Ele clica em **Deploy** e espera o build terminar (uns 30 segundos).
 4. Ele copia o endereço que aparece, algo como `https://instagram-webhook.SEU-NOME.workers.dev`, e cola aqui. O endereço não é segredo.
 
 Confira o endereço (troque pelo que o aluno colou):
@@ -33,7 +33,9 @@ No painel do app (https://developers.facebook.com/apps, abrir o app criado na et
 
 1. No passo **3, "Configurar webhooks"**: colar o endereço em **URL de callback** e escrever **`instagram-claude`** em **Verificar token** (tudo minúsculo). Clicar em **Verificar e salvar**.
 2. Na lista de campos que aparece, assinar **`messages`**.
-3. No passo **2**, na linha da conta do Instagram, ligar a chave **"Assinatura do webhook"**.
+3. No passo **2**, na linha da conta do Instagram, a coluna **"Assinatura do webhook"** tem que ficar **Ativado**.
+
+O passo **4, "Conclua a análise do app"**, não precisa: app que só opera a conta da própria empresa dispensa a análise. Diga isso ao aluno antes que ele se assuste.
 
 Se a Meta disser que não conseguiu validar o URL: o endereço tem que estar inteiro, com `https`, e o "Verificar token" tem que ser `instagram-claude`, tudo minúsculo.
 
