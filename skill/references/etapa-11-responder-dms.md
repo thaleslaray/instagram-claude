@@ -27,19 +27,23 @@ curl -s -o /dev/null -w '%{http_code}\n' "$U"
 - `Hello World` ou `200` nos dois: subiu o código padrão, falha conhecida da Cloudflare. Ele apaga o Worker em **Workers & Pages** e clica no botão de novo.
 - `523` ou `1010`: espere um minuto e confira de novo.
 
-## 11b. Ligar o endereço no app da Meta
+## 11b. Ligar o endereço no app da Meta (você faz pelo MCP)
 
-No painel do app (https://developers.facebook.com/apps, abrir o app criado na etapa 2): **Casos de uso > Instagram > Personalizar > API setup with Unified login**. Em alguns apps o nome é "API setup with Instagram login".
+O aluno não precisa mexer no painel para isso: você cadastra o endereço pelo MCP da Meta. O "Verificar token" é `instagram-claude`, igual para todo mundo e não é segredo: pode aparecer no chat.
 
-1. No passo **3, "Configurar webhooks"**: colar o endereço em **URL de callback** e escrever **`instagram-claude`** em **Verificar token** (tudo minúsculo). Clicar em **Verificar e salvar**.
-2. Na lista de campos que aparece, assinar **`messages`**.
-3. No passo **2**, na linha da conta do Instagram, a coluna **"Assinatura do webhook"** tem que ficar **Ativado**.
+1. **Veja o que já existe.** `devtools_webhook_list` com `action: "list_subscriptions"` e o `app_id` do app da etapa 2.
+   - Sem assinatura do tópico `instagram`: siga.
+   - Já tem o tópico `instagram` com **outro** endereço: mostre ao aluno o endereço atual (vem cortado, só o começo) e explique que o app só aceita um. Trocar desliga o que usa o endereço antigo (outra automação, por exemplo). Só siga com o "pode" dele.
+2. **Explique e peça o "pode".** "Vou cadastrar no seu app o endereço `<endereço>` para receber os avisos de mensagens (campo `messages`). Posso?"
+3. **Cadastre.** `devtools_webhook_manage` com `action: "subscribe"`, `app_id`, `topic: "instagram"`, `callback_url: "<endereço>"`, `verify_token: "instagram-claude"` e `fields: ["messages"]`. A primeira chamada não faz nada: ela devolve um resumo e um `confirm_token`. Mostre o resumo ao aluno e, com o "sim", chame de novo com os **mesmos** argumentos e o `confirm_token`.
+4. **Confira.** `list_subscriptions` de novo: o tópico `instagram` com o endereço dele, o campo `messages` e `enabled: true`.
+5. **A chave da conta (painel).** Essa o MCP não liga. O aluno abre o painel do app (https://developers.facebook.com/apps, o app da etapa 2) > **Casos de uso > Instagram > Personalizar > API setup with Unified login** (em alguns apps, "API setup with Instagram login"). No passo **2**, na linha da conta do Instagram, a coluna **"Assinatura do webhook"** tem que dizer **Ativado**. Se disser outra coisa, ele clica para ativar. Peça para ele dizer o que aparece.
 
 O passo **4, "Conclua a análise do app"**, não precisa: app que só opera a conta da própria empresa dispensa a análise. Diga isso ao aluno antes que ele se assuste.
 
-Se a Meta disser que não conseguiu validar o URL: o endereço tem que estar inteiro, com `https`, e o "Verificar token" tem que ser `instagram-claude`, tudo minúsculo.
-
-Confira pelo MCP da Meta: `devtools_webhook_list` com `list_subscriptions` tem que mostrar o tópico `instagram`, o endereço dele e o campo `messages`, com `enabled: true`. A chave "Assinatura do webhook" da conta não aparece no MCP: peça um print ou que ele diga se a chave está azul.
+**Se o MCP falhar:**
+- **"não conseguiu validar" o endereço:** confira de novo com o `curl` do 11a. Tem que estar inteiro, com `https`.
+- **MCP da Meta indisponível:** o aluno faz no painel. No passo **3, "Configurar webhooks"**, cola o endereço em **URL de callback** e escreve `instagram-claude` em **Verificar token**. Depois clica em **Verificar e salvar** e assina **`messages`** na lista.
 
 ## 11c. App publicado (modo Live)
 
