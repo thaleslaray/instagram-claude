@@ -4,7 +4,7 @@
 
 Por que precisa: a Meta só deixa o app responder uma DM se a conta estava com a **"Assinatura do webhook"** ligada quando a mensagem chegou. Webhook é um endereço na internet que a Meta avisa toda vez que chega mensagem. Para ligar a assinatura, a Meta exige esse endereço. Sem ele, a resposta falha com o erro `(#10)` "fora do período permitido", mesmo dentro de 24 horas. E o app precisa estar publicado (11c): em desenvolvimento, a Meta só manda esse aviso para quem tem papel no app.
 
-O endereço sai de um botão, de graça, na conta da Cloudflare do aluno. Ele só responde "ok" para a Meta: não guarda nem lê nenhuma mensagem. O Claude continua lendo e respondendo pela extensão, como na etapa 9.
+O endereço sai de um botão, de graça, na conta da Cloudflare do aluno. Ele só responde "ok" para a Meta: não guarda nem lê nenhuma mensagem. Ele também serve as páginas de política de privacidade e de exclusão de dados que a Meta pede para publicar o app (11c). O Claude continua lendo e respondendo pela extensão, como na etapa 9.
 
 ## 11a. Criar o endereço (botão da Cloudflare)
 
@@ -53,11 +53,12 @@ Publicar **não** é a análise do app (App Review). É só uma chave no painel.
 
 1. **Veja o modo.** `devtools_app` com `action: "basic_settings"` e o `app_id`. Se vier `is_live: true`, o app já está publicado: pule para o 11d.
 2. **Veja o que falta.** Na mesma resposta:
-   - **`privacy_policy_url`**: sem essa URL a Meta não publica. Se vier `null`, o aluno precisa de uma página com a política de privacidade dele (no site dele, por exemplo). Ele cola o endereço em **Configurações do app > Básico > URL da Política de Privacidade** e salva.
+   - **`privacy_policy_url`**: sem essa URL a Meta não publica. Se vier `null`, use a página que o endereço do 11a já serve: `<endereço>/privacidade`. Abra antes no navegador para conferir. Ele cola em **Configurações do app > Básico > URL da Política de Privacidade**. No mesmo lugar, em **URL de exclusão de dados**, cola `<endereço>/exclusao-de-dados`. Depois salva. Se ele já tem política de privacidade no site dele, pode usar a dele.
+   - Se `<endereço>/privacidade` der `forbidden`, o Worker é de antes dessas páginas: use a do site dele ou apague o Worker e clique no botão do 11a de novo.
    - **`category`**: se vier `null`, ele escolhe uma categoria no mesmo lugar.
    - Ícone não precisa.
-3. **Explique e peça o "pode".** Diga assim: "Publicar faz o app valer para quem não tem papel nele. O app continua ligado só à sua conta do Instagram." Com o "pode", ele publica: no menu da esquerda, **Publicar**. Em apps mais antigos, a chave **Modo do app** fica no topo e vai de Desenvolvimento para **Live**.
-4. **Se o painel recusar,** ele mostra o que falta. Às vezes pede também a **URL de exclusão de dados**: serve uma página que diga como pedir a exclusão. Ele preenche e tenta de novo.
+3. **Explique e peça o "pode".** Diga assim: "Publicar faz o app valer para quem não tem papel nele. O app continua ligado só à sua conta do Instagram." Com o "pode", ele publica: no menu da esquerda, **Publicar**. Em apps mais antigos, a chave **Modo do app** fica no topo: ele clica nela para passar de "desenvolvimento" para **Ao vivo** e confirma.
+4. **Se o painel recusar,** ele mostra o que falta. Ele preenche e tenta de novo.
 5. **Confira.** `basic_settings` de novo tem que dizer `is_live: true`.
 
 ## 11d. Testar com uma DM nova
