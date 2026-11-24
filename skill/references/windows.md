@@ -12,4 +12,3 @@ As etapas 1 a 8 acontecem na Meta e no Instagram e funcionam em qualquer sistema
 | Colar o token na extensão (etapa 9b) | Cmd+V | Ctrl+V |
 | Onde o token fica guardado | cofre do Mac | cofre do Windows, pelo Claude Desktop |
 
-A pesquisa dos comandos está em `~/pesquisas/pesquisa-mcp-instagram-windows-2026-11-10.md`, no computador do professor.

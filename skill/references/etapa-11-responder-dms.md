@@ -8,7 +8,7 @@ O endereço sai de um botão, de graça, na conta da Cloudflare do aluno. Ele s�
 
 ## 11a. Criar o endereço (botão da Cloudflare)
 
-O aluno precisa de conta grátis na Cloudflare (sem cartão) e de conta no GitHub. Se não tiver, ele cria agora em https://dash.cloudflare.com/sign-up e https://github.com/signup.
+O aluno precisa de conta grátis na Cloudflare (sem cartão) e de conta no GitHub. Explique: a Cloudflare é onde o endereço vai morar; o GitHub é onde ela guarda uma cópia das 10 linhas de código do endereço. Ele não vai mexer em código nenhum. Se não tiver, ele cria agora em https://dash.cloudflare.com/sign-up e https://github.com/signup.
 
 1. Mande o link do botão: https://deploy.workers.cloudflare.com/?url=https://github.com/thaleslaray/instagram-claude/tree/main/webhook
 2. Ele entra na Cloudflare. Em **Git account**, escolhe a conta do GitHub dele. Na primeira vez, clica em **New GitHub connection** e autoriza; no GitHub, escolhe **All repositories** (com "Only select repositories" o app pode não alcançar o repositório novo). A Cloudflare cria uma cópia do projeto no GitHub dele; isso é esperado. Marcar **Create private Git repository** é opcional.
@@ -66,6 +66,6 @@ A resposta enviada pelo cartão chega no celular de uma pessoa que não é testa
 
 | O que aparece | O que fazer |
 |---|---|
-| `(#10)` "fora do período permitido" com DM que chegou **depois** de ligar a assinatura | Confira de novo a chave "Assinatura do webhook" (11b, item 3) e o modo Live (11c). Depois peça outra DM nova. |
+| `(#10)` "fora do período permitido" com DM que chegou **depois** de ligar a assinatura | Confira de novo a chave "Assinatura do webhook" (11b, item 5) e o modo Live (11c). Depois peça outra DM nova. |
 | `(#10)` com DM que chegou **antes** de ligar a assinatura | Não tem conserto: peça uma DM nova. |
 | A DM de outra pessoa nem aparece na lista | Veja Solicitações e Pedidos ocultos (etapa 9d) e confira o modo Live (11c). |

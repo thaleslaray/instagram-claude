@@ -1,6 +1,6 @@
 # Etapa 9: instalar a extensão do Instagram e testar
 
-A extensão do Instagram é a ponte que deixa o Claude ler e operar a conta. Ela se instala no **Claude Desktop** e vale no chat e na aba Code. O token é colado num campo seguro da tela da extensão, e o Claude Desktop o guarda no cofre do computador. Não tem terminal nem arquivo de configuração no caminho.
+A extensão do Instagram é a ponte que deixa o Claude ler e operar a conta. Ela se instala no **Claude Desktop** e vale no chat e na aba Code. O token é colado num campo seguro da tela da extensão, e o Claude Desktop o guarda no cofre do computador. Daqui em diante não tem terminal nem arquivo de configuração no caminho.
 
 ## 9a. Conseguir a extensão
 
@@ -29,7 +29,7 @@ Peça ao aluno para abrir uma **conversa nova** (chat ou aba Code), depois do Cm
 
 ## 9d. Teste de DM recebida
 
-1. O aluno pega o celular, entra em **outro perfil** (de um amigo ou o pessoal) e **manda uma DM para a conta conectada**.
+1. O aluno pega o celular, entra em **outro perfil** (de um amigo ou o pessoal) e **manda uma DM para a conta conectada**. **Esse outro perfil precisa ser testador do app** (repita a etapa 7 com o @ dele): com o app em desenvolvimento, a Meta só libera a resposta para quem tem papel no app. Para responder qualquer pessoa, é a etapa 11 (opcional).
 2. Peça: "liste minhas conversas do Instagram". Esperado: a conversa nova com a mensagem.
 3. Se vier **lista vazia**: a mensagem caiu em **Solicitações** ou **Pedidos ocultos**, porque a conta não segue o outro perfil, e a API não lista a conversa enquanto ela está lá. O aluno abre o Direct da conta no celular, olha **Solicitações** e **Pedidos ocultos**, aceita o pedido e você pede a lista de novo. (Seguir o perfil de teste antes de ele mandar a mensagem também evita isso.)
 

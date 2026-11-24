@@ -14,7 +14,7 @@ Este template cria esse endereço na sua conta da Cloudflare, de graça. Ele nã
 
 - Conta grátis na Cloudflare (sem cartão).
 - Conta no GitHub.
-- Um app na Meta com o Instagram configurado e publicado (modo **Live**).
+- Um app na Meta com o Instagram configurado. Para responder pessoas que não são testadoras do app, ele precisa estar publicado (modo **Live**); dá para publicar depois de ligar o webhook.
 
 ## Passo a passo
 

@@ -21,15 +21,15 @@ O token é a senha de acesso longa do app à conta. **Vai tudo pela área de tra
 5. Aparece "A empresa ... foi conectada ao ...". Clicar em **Concluir**.
 6. De volta ao painel, o token aparece uma vez (na linha da conta, coluna Token). **Copie na hora** (Cmd+C) e **não copie mais nada** até a etapa 9, senão o token sai da área de transferência. Se não encontrar o token na tela, clique em Gerar token de novo.
 
-## 8b. Conferir (o aluno roda no terminal dele)
+## 8b. Conferir (você roda, sem ver o token)
 
-Com o token ainda na área de transferência, o aluno cola este comando no terminal (troque `<ID_DA_CONTA>` pelo número). No Claude Code ele pode digitar `!` antes do comando para rodar sem sair da sessão. O comando **não mostra o token** na tela:
+Com o token ainda na área de transferência, **você roda este comando** pela sua ferramenta de terminal (troque `<ID_DA_CONTA>` pelo número). Não peça ao aluno para copiar o comando: copiar qualquer coisa tira o token da área de transferência, e aí o teste falha e ele precisa gerar outro token. O comando lê o token direto da área de transferência e **não mostra o token** na tela nem para você:
 
 ```bash
 T=$(pbpaste); for u in "me/permissions" "<ID_DA_CONTA>?fields=id,username" "<ID_DA_CONTA>/conversations?platform=instagram&limit=1&fields=id"; do echo "== $u"; curl -s "https://graph.facebook.com/v27.0/$u" -H "Authorization: Bearer $T"; echo; done; unset T
 ```
 
-Peça que ele cole a **saída** (que não tem token) e leia você.
+Leia a saída (ela não tem token).
 
 O que esperar:
 1. `me/permissions`: `instagram_basic`, `instagram_manage_messages`, `instagram_manage_comments`, `instagram_content_publish`, `instagram_manage_insights` e `instagram_manage_events`, todas com `status: granted` (mais `public_profile`). As de anúncio **não** aparecem, porque não escolhemos conta de anúncios. É normal.
