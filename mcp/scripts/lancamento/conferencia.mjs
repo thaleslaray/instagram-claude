@@ -248,30 +248,53 @@ function contagemReal(raiz) {
   return { etapas, opcionais, obrigatorias, maxObrigatoria: Math.max(...obrigatorias, -1), maxGeral: Math.max(...etapas.map((e) => e.numero), -1) };
 }
 
+/** Como cada contagem de opcionais aparece nas frases: 1 ("mais uma opcional") ou 2 ("mais duas opcionais"). */
+function formasDeOpcionais(opcionais) {
+  if (opcionais.length === 1) {
+    const [n] = opcionais;
+    return {
+      sufixoDoIntervalo: `e a ${n} opcional`,
+      reIntervalo: "(\\d+) a (\\d+), e a (\\d+) opcional",
+      contagemSkill: "etapas, mais uma opcional",
+      contagemReadme: "etapas e uma opcional",
+    };
+  }
+  const [n1, n2] = opcionais;
+  return {
+    sufixoDoIntervalo: `e as opcionais ${n1} e ${n2}`,
+    reIntervalo: "(\\d+) a (\\d+), e as opcionais (\\d+) e (\\d+)",
+    contagemSkill: "etapas, mais duas opcionais",
+    contagemReadme: "etapas e duas opcionais",
+  };
+}
+
 export function conferirContagemDeEtapas(raiz) {
   const problemas = [];
   const real = contagemReal(raiz);
   if (real.etapas.length === 0) return problemas; // já acusado na regra 4
-  if (real.opcionais.length !== 1) {
-    // Sem saber qual é a etapa opcional não há frase esperada para comparar: para aqui.
+  if (real.opcionais.length < 1 || real.opcionais.length > 2) {
+    // Sem saber quais são as opcionais não há frase esperada para comparar: para aqui.
     const quais = real.opcionais.length ? ` (etapas ${real.opcionais.join(", ")})` : "";
-    problemas.push(`skill/references: ${real.opcionais.length} etapas com "(opcional)" no título${quais}, esperava exatamente 1; as frases de contagem não foram conferidas`);
+    const esperado = real.opcionais.length === 0 ? "esperava 1 ou 2" : "só 1 ou 2 são suportadas";
+    problemas.push(`skill/references: ${real.opcionais.length} etapas com "(opcional)" no título${quais}, ${esperado}; as frases de contagem não foram conferidas`);
     return problemas;
   }
-  const [opcional] = real.opcionais;
+  const opcionais = real.opcionais;
   const qtd = real.obrigatorias.length;
+  const forma = formasDeOpcionais(opcionais);
+  const esperadoDoIntervalo = `0 a ${real.maxObrigatoria}, ${forma.sufixoDoIntervalo}`;
 
   // O que cada arquivo promete. [arquivo, [rótulo, regex que captura os números]]
   const frases = {
     "skill/SKILL.md": [
-      ["título", /^## As etapas \((\d+) a (\d+), e a (\d+) opcional\)/m, "range"],
-      ["contagem", /\b(\d+) etapas, mais uma opcional/g, "qtd"],
+      ["título", new RegExp(`^## As etapas \\(${forma.reIntervalo}\\)`, "m"), "range"],
+      ["contagem", new RegExp(`\\b(\\d+) ${forma.contagemSkill}`, "g"), "qtd"],
     ],
     "INSTALL.md": [
-      ["intervalo", /etapas (\d+) a (\d+), e a (\d+) opcional/g, "range"],
-      ["contagem", /\b(\d+) etapas, mais uma opcional/g, "qtd"],
+      ["intervalo", new RegExp(`etapas ${forma.reIntervalo}`, "g"), "range"],
+      ["contagem", new RegExp(`\\b(\\d+) ${forma.contagemSkill}`, "g"), "qtd"],
     ],
-    "README.md": [["contagem", /\b(\d+) etapas e uma opcional/g, "qtd"]],
+    "README.md": [["contagem", new RegExp(`\\b(\\d+) ${forma.contagemReadme}`, "g"), "qtd"]],
   };
   for (const [arquivo, regras] of Object.entries(frases)) {
     if (!existe(raiz, arquivo)) continue;
@@ -280,16 +303,16 @@ export function conferirContagemDeEtapas(raiz) {
       const achados = [...texto.matchAll(re.global ? re : new RegExp(re.source, `${re.flags}g`))];
       if (achados.length === 0) {
         const artigo = rotulo === "contagem" ? "da" : "do";
-        const esperada = tipo === "range" ? `"0 a ${real.maxObrigatoria}, e a ${opcional} opcional"` : `"${qtd} etapas" e uma opcional`;
+        const esperada = tipo === "range" ? `"${esperadoDoIntervalo}"` : `"${qtd} ${arquivo === "README.md" ? forma.contagemReadme : forma.contagemSkill}"`;
         problemas.push(`${arquivo}: não achei a frase ${artigo} ${rotulo} das etapas (esperava ${esperada})`);
         continue;
       }
       for (const m of achados) {
         const linha = linhaDe(texto, m.index);
         if (tipo === "range") {
-          const [de, ate, op] = [Number(m[1]), Number(m[2]), Number(m[3])];
-          if (de !== 0 || ate !== real.maxObrigatoria || op !== opcional) {
-            problemas.push(`${arquivo}, linha ${linha}: diz "${m[0]}", esperava "${arquivo === "skill/SKILL.md" ? "## As etapas (" : "etapas "}0 a ${real.maxObrigatoria}, e a ${opcional} opcional" pelos arquivos de skill/references`);
+          const [de, ate, ...ops] = m.slice(1).map(Number);
+          if (de !== 0 || ate !== real.maxObrigatoria || ops.join(",") !== opcionais.join(",")) {
+            problemas.push(`${arquivo}, linha ${linha}: diz "${m[0]}", esperava "${arquivo === "skill/SKILL.md" ? "## As etapas (" : "etapas "}${esperadoDoIntervalo}" pelos arquivos de skill/references`);
           }
         } else if (Number(m[1]) !== qtd) {
           problemas.push(`${arquivo}, linha ${linha}: diz "${m[0]}", esperava ${qtd} etapas pelos arquivos de skill/references`);

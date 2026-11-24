@@ -14,3 +14,4 @@ export function sha256Arquivo(caminho: string): string;
 export function arquivosDaSkill(pasta: string): string[];
 export function conferirSkillEmpacotada(zip: string, pastaSkill: string, rotulo?: string): string[];
 export function conferirArvore(raiz: string, opcoes?: { exigirPacote?: boolean }): string[];
+export function conferirContagemDeEtapas(raiz: string): string[];

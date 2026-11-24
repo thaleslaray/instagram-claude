@@ -42,7 +42,7 @@ Peça: "responda a DM do @fulano com: Oi, funcionou!" (troque pelo @ do outro pe
 
 O aluno **fica na conversa até o cartão aparecer e até ele mostrar "Pronto"**. Clica em **Enviar uma vez**. Se o cartão sumir e voltar, **não clica de novo**: ele mostra "Este pedido já foi enviado". Você nunca confirma por ele, e nunca pede o código de confirmação a ele. A resposta chega no celular do outro perfil.
 
-A Meta só deixa responder depois da primeira mensagem da pessoa, e dentro de 24 horas dela.
+A Meta só deixa responder depois da primeira mensagem da pessoa, e dentro de 24 horas dela. Para responder quem não é testador do app, faça a etapa 11 (opcional).
 
 ## Como saber que deu certo
 
@@ -52,7 +52,7 @@ A resposta enviada pelo cartão chega no outro perfil, no celular.
 
 | O que aparece | O que fazer |
 |---|---|
-| `(#10)` "Essa mensagem foi enviada fora do período permitido" (código 10, subcódigo 2534022) | A pessoa escreveu há mais de 24 horas: peça uma mensagem nova dela e tente de novo. **Se o erro vem segundos depois da mensagem**, é o bloqueio de conta descrito na etapa 0: teste com outra conta. |
+| `(#10)` "Essa mensagem foi enviada fora do período permitido" (código 10, subcódigo 2534022) | Se a pessoa escreveu há mais de 24 horas, peça uma mensagem nova dela e tente de novo. Se a pessoa **não é testadora** do app, é a etapa 11 (assinatura do webhook e modo Live). Se o erro vem segundos depois da mensagem e a pessoa é testadora, é o bloqueio de conta descrito na etapa 0: teste com outra conta. |
 | A conversa não aparece na lista | Está em Solicitações ou Pedidos ocultos (passo 9d.3). |
 | O cartão não aparece, só texto | Versão antiga da extensão (desinstalar e abrir o arquivo de novo, passo 9b) ou dois servidores com o mesmo nome `instagram` (passo 9b). |
 | "Não foi possível carregar este widget" | Cmd+Q no Claude Desktop, abrir de novo e usar uma conversa nova. |

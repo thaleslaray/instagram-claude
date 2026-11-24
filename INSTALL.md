@@ -2,7 +2,7 @@
 
 Este arquivo é para o **agente de código** (Claude Code ou a aba Code do Claude Desktop) instalar o Instagram + Claude no computador da pessoa. Ele instala sempre a **última versão publicada**. Se você é uma pessoa, a [instalação manual do README](https://github.com/thaleslaray/instagram-claude/blob/main/README.md#instalação-manual) é mais simples.
 
-Neste guia, **passo** é um passo deste arquivo. **Etapa** é uma etapa da skill que a pessoa vai seguir depois (etapas 0 a 9, e a 10 opcional).
+Neste guia, **passo** é um passo deste arquivo. **Etapa** é uma etapa da skill que a pessoa vai seguir depois (etapas 0 a 9, e as opcionais 10 e 11).
 
 ## Regras (valem do começo ao fim)
 
@@ -105,7 +105,7 @@ Termine com um resumo curto do que foi instalado e onde, e com estas instruçõe
 1. Comece uma **conversa nova** na aba Code do Claude Desktop, ou rode `claude` de novo no terminal. A skill só aparece em conversa nova.
 2. Digite `/instagram-app-meta`.
 3. Se `/instagram-app-meta` não aparecer: feche o Claude Desktop por completo com Cmd+Q, abra de novo e tente numa conversa nova.
-4. A skill guia 10 etapas, mais uma opcional, uma por vez: criar o app na Meta, gerar o token e instalar a extensão. O arquivo da extensão já está em `~/Downloads`. Reserve um tempo sem pressa, porque algumas telas da Meta demoram.
+4. A skill guia 10 etapas, mais duas opcionais, uma por vez: criar o app na Meta, gerar o token e instalar a extensão. O arquivo da extensão já está em `~/Downloads`. Reserve um tempo sem pressa, porque algumas telas da Meta demoram.
 5. Para isso, a pessoa precisa de:
    - uma conta do Instagram profissional e pública;
    - acesso de administrador a um portfólio empresarial na Meta.

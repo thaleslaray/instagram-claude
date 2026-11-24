@@ -30,7 +30,7 @@ Depois disso, abra uma **conversa nova** na aba Code e digite `/instagram-app-me
 | Parte | O que é | O que faz |
 |---|---|---|
 | **Extensão do Instagram** ([`mcp/`](mcp/)) | Um servidor MCP empacotado como extensão `.mcpb` do Claude Desktop. MCP é a ponte que deixa o Claude usar um programa. | Dá ao Claude 33 ferramentas para ler e operar **uma** conta profissional do Instagram. Funciona no chat e na aba Code. |
-| **Skill de configuração** ([`skill/`](skill/)) | Um guia que o Claude segue com você, em 10 etapas e uma opcional. | Cria o app na Meta, configura o login com as 8 permissões, gera e confere o token e instala a extensão. A etapa opcional liga a publicação de fotos do computador. |
+| **Skill de configuração** ([`skill/`](skill/)) | Um guia que o Claude segue com você, em 10 etapas e duas opcionais. | Cria o app na Meta, configura o login com as 8 permissões, gera e confere o token e instala a extensão. As etapas opcionais ligam a publicação de fotos do computador e as respostas a DMs de qualquer pessoa. |
 
 ## Tudo que dá para fazer
 
@@ -47,7 +47,7 @@ Depois de instalado, é só conversar com o Claude do seu jeito. Não precisa sa
 | "O que o @fulano me escreveu? Ainda dá para responder?" | Lê as 20 mensagens mais recentes e diz até quando a janela de 24 h fica aberta | — |
 | "Mostra essa mensagem e o anexo" | Abre uma mensagem com texto e anexos | — |
 | "Quem é essa pessoa? Ela me segue?" | Mostra o perfil de quem escreveu: @, seguidores, se segue você, se é verificada | — |
-| "Responde o @fulano com o link do material" | Responde por texto, dentro de 24 h da última mensagem da pessoa | Sim |
+| "Responde o @fulano com o link do material" | Responde por texto, dentro de 24 h da última mensagem da pessoa (para quem não é testador, precisa da etapa 11) | Sim |
 | "Manda o PDF da aula para quem pediu" | Envia imagem, vídeo, áudio ou PDF, do computador ou por link | Sim |
 | "Dá um coração na última mensagem dela" | Reage com emoji ou tira a reação | Direto |
 
@@ -76,6 +76,8 @@ Depois de instalado, é só conversar com o Claude do seu jeito. Não precisa sa
 | "Quantos posts ainda posso fazer hoje?" | Mostra a cota de 24 h da Meta | — |
 
 A foto ou o vídeo pode ser um link ou um arquivo do seu computador. O vídeo do computador vai direto para a Meta. A foto do computador precisa de uma chave gratuita do Uploadcare, que a etapa 10 da skill configura.
+
+Quer que o Claude responda DMs de qualquer pessoa? A etapa 11 cria um webhook grátis com um botão (template [instagram-webhook-template](https://github.com/thaleslaray/instagram-webhook-template)).
 
 ### Seus posts, stories e a concorrência
 

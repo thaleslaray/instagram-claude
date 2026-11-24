@@ -10,7 +10,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { after, before, describe, it } from "node:test";
 import { crc32 } from "node:zlib";
-import { ARQUIVOS_DA_RELEASE, arquivosDaSkill, conferirArvore, REGRAS } from "../scripts/lancamento/conferencia.mjs";
+import { ARQUIVOS_DA_RELEASE, arquivosDaSkill, conferirArvore, conferirContagemDeEtapas, REGRAS } from "../scripts/lancamento/conferencia.mjs";
 import { gerarSha256, gerarSkill } from "../scripts/lancamento/pacote.mjs";
 
 const REPO = join(import.meta.dirname, "../..");
@@ -243,43 +243,85 @@ describe("conferência de lançamento", () => {
   describe("regra 5: contagem de etapas igual em todo lugar", () => {
     it('acusa INSTALL dizendo "etapas 0 a 10"', () => {
       const raiz = montar();
-      trocar(raiz, "INSTALL.md", "etapas 0 a 9, e a 10 opcional", "etapas 0 a 10");
-      acusa(conferir(raiz), /INSTALL\.md: não achei a frase do intervalo das etapas \(esperava "0 a 9, e a 10 opcional"\)/);
+      trocar(raiz, "INSTALL.md", "etapas 0 a 9, e as opcionais 10 e 11", "etapas 0 a 10");
+      acusa(conferir(raiz), /INSTALL\.md: não achei a frase do intervalo das etapas \(esperava "0 a 9, e as opcionais 10 e 11"\)/);
     });
     it("sem etapa opcional, acusa isso e não monta frase com undefined", () => {
       const raiz = montar();
       trocar(raiz, "skill/references/etapa-10-foto-do-computador.md", /\s*\(opcional\)/i, "");
+      trocar(raiz, "skill/references/etapa-11-responder-dms.md", /\s*\(opcional\)/i, "");
       const problemas = conferir(raiz);
-      acusa(problemas, /skill\/references: 0 etapas com "\(opcional\)" no título, esperava exatamente 1/);
+      acusa(problemas, /skill\/references: 0 etapas com "\(opcional\)" no título, esperava 1 ou 2/);
       assert.equal(problemas.some((p) => /undefined/.test(p)), false);
     });
     it("acusa intervalo errado no INSTALL", () => {
       const raiz = montar();
-      trocar(raiz, "INSTALL.md", "etapas 0 a 9, e a 10 opcional", "etapas 0 a 8, e a 10 opcional");
-      acusa(conferir(raiz), /INSTALL\.md, linha \d+: diz "etapas 0 a 8, e a 10 opcional", esperava "etapas 0 a 9, e a 10 opcional"/);
+      trocar(raiz, "INSTALL.md", "etapas 0 a 9, e as opcionais 10 e 11", "etapas 0 a 8, e as opcionais 10 e 11");
+      acusa(conferir(raiz), /INSTALL\.md, linha \d+: diz "etapas 0 a 8, e as opcionais 10 e 11", esperava "etapas 0 a 9, e as opcionais 10 e 11"/);
     });
     it("acusa o título do SKILL.md com intervalo errado", () => {
       const raiz = montar();
-      trocar(raiz, "skill/SKILL.md", "## As etapas (0 a 9, e a 10 opcional)", "## As etapas (0 a 10, e a 11 opcional)");
-      acusa(conferir(raiz), /skill\/SKILL\.md, linha \d+: diz "## As etapas \(0 a 10, e a 11 opcional\)"/);
+      trocar(raiz, "skill/SKILL.md", "## As etapas (0 a 9, e as opcionais 10 e 11)", "## As etapas (0 a 10, e as opcionais 11 e 12)");
+      acusa(conferir(raiz), /skill\/SKILL\.md, linha \d+: diz "## As etapas \(0 a 10, e as opcionais 11 e 12\)"/);
     });
     it('acusa contagem errada no SKILL.md, no INSTALL e no README', () => {
       const raiz = montar();
-      trocar(raiz, "skill/SKILL.md", /\b10 etapas, mais uma opcional/, "9 etapas, mais uma opcional");
-      trocar(raiz, "INSTALL.md", "10 etapas, mais uma opcional", "11 etapas, mais uma opcional");
-      trocar(raiz, "README.md", "10 etapas e uma opcional", "12 etapas e uma opcional");
+      trocar(raiz, "skill/SKILL.md", /\b10 etapas, mais duas opcionais/, "9 etapas, mais duas opcionais");
+      trocar(raiz, "INSTALL.md", "10 etapas, mais duas opcionais", "11 etapas, mais duas opcionais");
+      trocar(raiz, "README.md", "10 etapas e duas opcionais", "12 etapas e duas opcionais");
       const problemas = conferir(raiz);
-      acusa(problemas, /skill\/SKILL\.md, linha \d+: diz "9 etapas, mais uma opcional", esperava 10/);
-      acusa(problemas, /INSTALL\.md, linha \d+: diz "11 etapas, mais uma opcional", esperava 10/);
-      acusa(problemas, /README\.md, linha \d+: diz "12 etapas e uma opcional", esperava 10/);
+      acusa(problemas, /skill\/SKILL\.md, linha \d+: diz "9 etapas, mais duas opcionais", esperava 10/);
+      acusa(problemas, /INSTALL\.md, linha \d+: diz "11 etapas, mais duas opcionais", esperava 10/);
+      acusa(problemas, /README\.md, linha \d+: diz "12 etapas e duas opcionais", esperava 10/);
+    });
+    it("com 2 opcionais, as frases certas passam", () => {
+      const raiz = montar();
+      assert.deepEqual(conferirContagemDeEtapas(raiz), []);
+    });
+    it('com 2 opcionais, a frase antiga "mais uma opcional" é acusada', () => {
+      const raiz = montar();
+      trocar(raiz, "skill/SKILL.md", /\b10 etapas, mais duas opcionais/g, "10 etapas, mais uma opcional");
+      trocar(raiz, "INSTALL.md", "etapas 0 a 9, e as opcionais 10 e 11", "etapas 0 a 9, e a 10 opcional");
+      trocar(raiz, "README.md", "10 etapas e duas opcionais", "10 etapas e uma opcional");
+      const problemas = conferirContagemDeEtapas(raiz);
+      acusa(problemas, /skill\/SKILL\.md: não achei a frase da contagem das etapas \(esperava "10 etapas, mais duas opcionais"\)/);
+      acusa(problemas, /INSTALL\.md: não achei a frase do intervalo das etapas \(esperava "0 a 9, e as opcionais 10 e 11"\)/);
+      acusa(problemas, /README\.md: não achei a frase da contagem das etapas \(esperava "10 etapas e duas opcionais"\)/);
+    });
+    it("com 2 opcionais, acusa o par de opcionais errado no intervalo do INSTALL", () => {
+      const raiz = montar();
+      trocar(raiz, "INSTALL.md", "e as opcionais 10 e 11", "e as opcionais 10 e 12");
+      acusa(conferirContagemDeEtapas(raiz), /INSTALL\.md, linha \d+: diz "etapas 0 a 9, e as opcionais 10 e 12", esperava "etapas 0 a 9, e as opcionais 10 e 11"/);
+    });
+    it("com 1 opcional, as frases de uma opcional continuam valendo", () => {
+      const raiz = montar();
+      rmSync(join(raiz, "skill/references/etapa-11-responder-dms.md"));
+      trocar(raiz, "skill/SKILL.md", /^\| 11 \|.*\n/m, "");
+      trocar(raiz, "skill/SKILL.md", "## As etapas (0 a 9, e as opcionais 10 e 11)", "## As etapas (0 a 9, e a 10 opcional)");
+      trocar(raiz, "skill/SKILL.md", /\b10 etapas, mais duas opcionais/g, "10 etapas, mais uma opcional");
+      trocar(raiz, "INSTALL.md", "etapas 0 a 9, e as opcionais 10 e 11", "etapas 0 a 9, e a 10 opcional");
+      trocar(raiz, "INSTALL.md", "10 etapas, mais duas opcionais", "10 etapas, mais uma opcional");
+      trocar(raiz, "README.md", "10 etapas e duas opcionais", "10 etapas e uma opcional");
+      trocar(raiz, "README.md", /precisa da etapa 11/, "precisa da etapa 10");
+      trocar(raiz, "README.md", /A etapa 11 cria/, "A etapa 10 cria");
+      assert.deepEqual(conferirContagemDeEtapas(raiz), []);
+      // E a frase de duas opcionais passa a ser a errada.
+      trocar(raiz, "README.md", "10 etapas e uma opcional", "10 etapas e duas opcionais");
+      acusa(conferirContagemDeEtapas(raiz), /README\.md: não achei a frase da contagem das etapas \(esperava "10 etapas e uma opcional"\)/);
+    });
+    it("com 3 opcionais, acusa que não é suportado", () => {
+      const raiz = montar();
+      trocar(raiz, "skill/references/etapa-09-instalar-e-testar.md", /^(# Etapa 9.*)$/m, "$1 (opcional)");
+      const problemas = conferirContagemDeEtapas(raiz);
+      acusa(problemas, /skill\/references: 3 etapas com "\(opcional\)" no título \(etapas 9, 10, 11\), só 1 ou 2 são suportadas/);
     });
     it("acusa menção a uma etapa que não existe no INSTALL e no README", () => {
       const raiz = montar();
       trocar(raiz, "INSTALL.md", "A etapa 0 confere os dois.", "A etapa 12 confere os dois.");
-      trocar(raiz, "README.md", "que a etapa 10 da skill configura", "que a etapa 11 da skill configura");
+      trocar(raiz, "README.md", "que a etapa 10 da skill configura", "que a etapa 12 da skill configura");
       const problemas = conferir(raiz);
       acusa(problemas, /INSTALL\.md, linha \d+: cita a etapa 12/);
-      acusa(problemas, /README\.md, linha \d+: cita a etapa 11/);
+      acusa(problemas, /README\.md, linha \d+: cita a etapa 12/);
     });
     it("acusa o README com link para etapa que não existe", () => {
       const raiz = montar();

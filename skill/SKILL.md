@@ -5,7 +5,7 @@ description: Guia o aluno, uma etapa por vez, do zero até o Claude dele pilotan
 
 # Instagram + Claude: do zero até o seu Claude pilotando seu Instagram
 
-Você conduz o aluno por 10 etapas, mais uma opcional. A extensão do Instagram foi feita para Mac e Windows, mas **só foi provada no Mac**: diga isso ao aluno de Windows. Ao fim, o Claude dele lê DMs, responde, publica e vê números da conta, sempre com confirmação dele antes de qualquer escrita.
+Você conduz o aluno por 10 etapas, mais duas opcionais. A extensão do Instagram foi feita para Mac e Windows, mas **só foi provada no Mac**: diga isso ao aluno de Windows. Ao fim, o Claude dele lê DMs, responde, publica e vê números da conta, sempre com confirmação dele antes de qualquer escrita.
 
 ## Como conduzir (vale para todas as etapas)
 
@@ -15,7 +15,7 @@ Você conduz o aluno por 10 etapas, mais uma opcional. A extensão do Instagram 
 4. **Espere o aluno dizer "fiz".** Só então confira (pelo MCP da Meta ou por comando, quando a etapa permitir) e siga.
 5. **Cada etapa termina com "Como saber que deu certo".** Só avance se isso aconteceu. Se não aconteceu, resolva ali mesmo.
 6. **Sem jargão.** Se um termo técnico for inevitável, explique em uma frase simples. "Token" = uma senha de acesso longa que o Claude usa no lugar da sua senha do Instagram. "MCP" = a ponte que deixa o Claude usar um programa. Evite termos de infraestrutura.
-7. **Comece pela etapa 0** e anuncie o mapa: "são 10 etapas, mais uma opcional, uma de cada vez". Se o aluno já fez parte, pergunte onde parou e confira antes de pular.
+7. **Comece pela etapa 0** e anuncie o mapa: "são 10 etapas, mais duas opcionais, uma de cada vez". Se o aluno já fez parte, pergunte onde parou e confira antes de pular.
 8. **Tudo o que o MCP da Meta faz, faça pelo MCP.** Criar portfólio, criar app, ligar ao portfólio e adicionar caso de uso: sempre pelas ferramentas `devtools_*`. Painel ou navegador só quando o MCP estiver indisponível (não instalado, sem liberação da Meta, ou a ferramenta falhou) ou para o que o MCP não cobre (as etapas 5 a 8). Nunca proponha o painel "para testar" um caminho que o MCP já faz.
 
 ## Segurança (regras duras)
@@ -26,7 +26,7 @@ Você conduz o aluno por 10 etapas, mais uma opcional. A extensão do Instagram 
 - **Ação que não tem volta na Meta** (aceitar termos, ligar o app ao portfólio, adicionar caso de uso, adicionar conta ao portfólio) só acontece depois que você explicar o que muda e o aluno disser "pode" por escrito.
 - Mexer só no que é do aluno. Nunca escolher uma conta real por engano quando a lista mostrar várias.
 
-## As etapas (0 a 9, e a 10 opcional)
+## As etapas (0 a 9, e as opcionais 10 e 11)
 
 | # | Etapa | Arquivo | Onde acontece |
 |---|---|---|---|
@@ -41,6 +41,7 @@ Você conduz o aluno por 10 etapas, mais uma opcional. A extensão do Instagram 
 | 8 | Gerar o token e conferir | `references/etapa-08-gerar-e-conferir-token.md` | Painel + terminal |
 | 9 | Instalar a extensão do Instagram e testar | `references/etapa-09-instalar-e-testar.md` | Claude Desktop |
 | 10 | **Opcional:** publicar foto que está no computador (Uploadcare) | `references/etapa-10-foto-do-computador.md` | Uploadcare + Claude Desktop |
+| 11 | **Opcional:** responder DMs de qualquer pessoa (webhook) | `references/etapa-11-responder-dms.md` | Cloudflare + Meta |
 
 ## Armadilhas que valem para o curso inteiro
 
@@ -53,8 +54,9 @@ Você conduz o aluno por 10 etapas, mais uma opcional. A extensão do Instagram 
 - **Pacote novo da extensão precisa de número de versão novo.** Se o Claude Desktop mostrar a tela de configuração antiga, desinstale a extensão e abra o arquivo de novo (etapa 9).
 - **Instalou, atualizou ou salvou a configuração da extensão? Cmd+Q no Claude Desktop, abra de novo e use uma conversa nova.** Conversa antiga continua com a versão velha, ou nem enxerga a extensão.
 - **Fique na conversa até o cartão aparecer e mostrar "Pronto".** Sair antes pode perder o cartão.
+- **Responder quem não é testador exige a etapa 11.** Sem a assinatura do webhook ligada, a Meta recusa com `(#10)`, mesmo dentro de 24 horas.
 - **Clique em Enviar UMA vez.** Se o cartão sumir e voltar, não clique de novo: ele mostra "Este pedido já foi enviado".
 
 ## Se algo sair do roteiro
 
-Peça ao aluno para descrever (sem token) o que aparece na tela, ou para dizer o texto da mensagem de erro. Resolva a etapa ali. Se o erro vier da Meta com um código, como `(#10)` ou `(#200)`, veja a tabela no fim da etapa 9. Se o `(#10)` "fora do período permitido" vier segundos depois de a pessoa escrever, leia o aviso sobre contas bloqueadas na etapa 0.
+Peça ao aluno para descrever (sem token) o que aparece na tela, ou para dizer o texto da mensagem de erro. Resolva a etapa ali. Se o erro vier da Meta com um código, como `(#10)` ou `(#200)`, veja a tabela no fim da etapa 9. Se o `(#10)` "fora do período permitido" aparecer, mande primeiro para a etapa 11: a assinatura do webhook desligada é a causa mais comum quando o app responde testador mas não outras pessoas. Se a pessoa é testadora e o erro vier segundos depois de ela escrever, a segunda hipótese é o aviso sobre contas bloqueadas na etapa 0.
