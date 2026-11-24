@@ -5,6 +5,11 @@
   "main": "src/index.js",
   "compatibility_date": "2025-09-01",
   "workers_dev": true,
+  // Palavra que a Meta manda na verificação. Não é segredo: o Worker não guarda nem lê nada.
+  // Quer outra? Troque aqui ou em Settings > Variables and Secrets, e use a mesma na Meta.
+  "vars": {
+    "VERIFY_TOKEN": "instagram-claude"
+  },
   "observability": {
     "enabled": false
   }

@@ -6,37 +6,36 @@ Por que precisa: a Meta só deixa o app responder uma DM se a conta estava com a
 
 O endereço sai de um botão, de graça, na conta da Cloudflare do aluno. Ele só responde "ok" para a Meta: não guarda nem lê nenhuma mensagem. O Claude continua lendo e respondendo pela extensão, como na etapa 9.
 
-O aluno vai inventar uma senha nesta etapa. **Você nunca pede, lê nem repete essa senha.** Ele digita nos campos da Cloudflare e da Meta.
-
 ## 11a. Criar o endereço (botão da Cloudflare)
 
 O aluno precisa de conta grátis na Cloudflare (sem cartão) e de conta no GitHub. Se não tiver, ele cria agora em https://dash.cloudflare.com/sign-up e https://github.com/signup.
 
 1. Mande o link do botão: https://deploy.workers.cloudflare.com/?url=https://github.com/thaleslaray/instagram-claude/tree/main/webhook
 2. Ele entra na Cloudflare e conecta o GitHub quando ela pedir. Ela cria uma cópia do projeto no GitHub dele; isso é esperado.
-3. No campo **`VERIFY_TOKEN`**, ele inventa uma senha **sem espaços** e anota num lugar seguro.
-4. Ele clica em **Create and deploy** e espera terminar.
-5. Ele copia o endereço que aparece, algo como `https://instagram-webhook.SEU-NOME.workers.dev`, e cola aqui. O endereço não é segredo.
+3. Ele clica em **Create and deploy** e espera terminar.
+4. Ele copia o endereço que aparece, algo como `https://instagram-webhook.SEU-NOME.workers.dev`, e cola aqui. O endereço não é segredo.
 
-Confira o endereço:
+Confira o endereço (troque pelo que o aluno colou):
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' "<endereço que o aluno colou>"
+U="<endereço que o aluno colou>"
+curl -s -w ' %{http_code}\n' "$U/?hub.mode=subscribe&hub.verify_token=instagram-claude&hub.challenge=12345"
+curl -s -o /dev/null -w '%{http_code}\n' "$U"
 ```
 
-- `403`: certo. É a resposta para quem não tem a senha.
-- `200` (ou o navegador mostra "Hello World"): subiu o código padrão, falha conhecida da Cloudflare. Ele apaga o Worker em **Workers & Pages** e clica no botão de novo.
+- `12345 200` e depois `403`: certo. O primeiro imita a verificação da Meta; o segundo é quem abre o endereço sem ser a Meta.
+- `Hello World` ou `200` nos dois: subiu o código padrão, falha conhecida da Cloudflare. Ele apaga o Worker em **Workers & Pages** e clica no botão de novo.
 - `523` ou `1010`: espere um minuto e confira de novo.
 
 ## 11b. Ligar o endereço no app da Meta
 
 No painel do app (https://developers.facebook.com/apps, abrir o app criado na etapa 2): **Casos de uso > Instagram > Personalizar > API setup with Unified login**. Em alguns apps o nome é "API setup with Instagram login".
 
-1. No passo **3, "Configurar webhooks"**: colar o endereço em **URL de callback** e a senha em **Verificar token**. Clicar em **Verificar e salvar**.
+1. No passo **3, "Configurar webhooks"**: colar o endereço em **URL de callback** e escrever **`instagram-claude`** em **Verificar token** (tudo minúsculo). Clicar em **Verificar e salvar**.
 2. Na lista de campos que aparece, assinar **`messages`**.
 3. No passo **2**, na linha da conta do Instagram, ligar a chave **"Assinatura do webhook"**.
 
-Se a Meta disser que não conseguiu validar o URL: o endereço tem que estar inteiro, com `https`, e a senha tem que ser igual nos dois lugares, letra por letra. Esqueceu a senha? Na Cloudflare, **Workers & Pages > instagram-webhook > Settings > Variables and Secrets**, ele troca o `VERIFY_TOKEN` e repete o item 1.
+Se a Meta disser que não conseguiu validar o URL: o endereço tem que estar inteiro, com `https`, e o "Verificar token" tem que ser `instagram-claude`, tudo minúsculo.
 
 Confira pelo MCP da Meta: `devtools_webhook_list` com `list_subscriptions` tem que mostrar o tópico `instagram`, o endereço dele e o campo `messages`, com `enabled: true`. A chave "Assinatura do webhook" da conta não aparece no MCP: peça um print ou que ele diga se a chave está azul.
 

@@ -10,12 +10,9 @@
   },
   "cloudflare": {
     "label": "Webhook do Instagram",
-    "products": ["Workers"],
-    "categories": [],
-    "bindings": {
-      "VERIFY_TOKEN": {
-        "description": "Invente uma senha qualquer, sem espaços (exemplo: `minha-senha-123`). Anote: você vai colar essa mesma senha no painel da Meta."
-      }
-    }
+    "products": [
+      "Workers"
+    ],
+    "categories": []
   }
 }
