@@ -77,7 +77,9 @@ Depois de instalado, é só conversar com o Claude do seu jeito. Não precisa sa
 
 A foto ou o vídeo pode ser um link ou um arquivo do seu computador. O vídeo do computador vai direto para a Meta. A foto do computador precisa de uma chave gratuita do Uploadcare, que a etapa 10 da skill configura.
 
-Quer que o Claude responda DMs de qualquer pessoa? A etapa 11 cria um webhook grátis com um botão (template [instagram-webhook-template](https://github.com/thaleslaray/instagram-webhook-template)).
+Quer que o Claude responda DMs de qualquer pessoa? A etapa 11 cria um webhook grátis com um botão (pasta [`webhook/`](webhook/) deste repositório).
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/thaleslaray/instagram-claude/tree/main/webhook)
 
 ### Seus posts, stories e a concorrência
 

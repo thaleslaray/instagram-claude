@@ -12,7 +12,7 @@ O aluno vai inventar uma senha nesta etapa. **Você nunca pede, lê nem repete e
 
 O aluno precisa de conta grátis na Cloudflare (sem cartão) e de conta no GitHub. Se não tiver, ele cria agora em https://dash.cloudflare.com/sign-up e https://github.com/signup.
 
-1. Mande o link do botão: https://deploy.workers.cloudflare.com/?url=https://github.com/thaleslaray/instagram-webhook-template
+1. Mande o link do botão: https://deploy.workers.cloudflare.com/?url=https://github.com/thaleslaray/instagram-claude/tree/main/webhook
 2. Ele entra na Cloudflare e conecta o GitHub quando ela pedir. Ela cria uma cópia do projeto no GitHub dele; isso é esperado.
 3. No campo **`VERIFY_TOKEN`**, ele inventa uma senha **sem espaços** e anota num lugar seguro.
 4. Ele clica em **Create and deploy** e espera terminar.

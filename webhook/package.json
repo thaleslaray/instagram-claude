@@ -1,0 +1,21 @@
+{
+  "name": "instagram-webhook",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  },
+  "cloudflare": {
+    "label": "Webhook do Instagram",
+    "products": ["Workers"],
+    "categories": [],
+    "bindings": {
+      "VERIFY_TOKEN": {
+        "description": "Invente uma senha qualquer, sem espaços (exemplo: `minha-senha-123`). Anote: você vai colar essa mesma senha no painel da Meta."
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Este nome pode ser trocado na hora do deploy.
+  "name": "instagram-webhook",
+  "main": "src/index.js",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  "observability": {
+    "enabled": false
+  }
+}
