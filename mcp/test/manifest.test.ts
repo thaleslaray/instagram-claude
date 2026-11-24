@@ -29,7 +29,7 @@ describe("mcpb/manifest.json", () => {
     assert.doesNotMatch(JSON.stringify(manifesto), /R2|Cloudflare|bucket/i);
     const pacote = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
     assert.equal(manifesto.version, pacote.version);
-    assert.equal(manifesto.version, "0.4.22");
+    assert.equal(manifesto.version, "0.4.23");
     const bloqueio = JSON.parse(readFileSync(new URL("../package-lock.json", import.meta.url), "utf8"));
     assert.equal(bloqueio.version, pacote.version);
     assert.equal(bloqueio.packages[""].version, pacote.version);
