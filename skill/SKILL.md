@@ -38,7 +38,7 @@ Você conduz o aluno por 10 etapas, mais duas opcionais. A extensão do Instagra
 | 5 | Criar a configuração do login unificado, com as 8 permissões | `references/etapa-05-configuracao-e-permissoes.md` | Painel da Meta |
 | 6 | Pôr a conta no portfólio | `references/etapa-06-conta-no-portfolio.md` | Business Suite |
 | 7 | Testador do Instagram e aceite do convite | `references/etapa-07-testador.md` | Painel + Instagram |
-| 8 | Gerar o token e conferir | `references/etapa-08-gerar-e-conferir-token.md` | Painel + terminal |
+| 8 | Gerar o token e conferir | `references/etapa-08-gerar-e-conferir-token.md` | Painel + Claude |
 | 9 | Instalar a extensão do Instagram e testar | `references/etapa-09-instalar-e-testar.md` | Claude Desktop |
 | 10 | **Opcional:** publicar foto que está no computador (Uploadcare) | `references/etapa-10-foto-do-computador.md` | Uploadcare + Claude Desktop |
 | 11 | **Opcional:** responder DMs de qualquer pessoa (webhook) | `references/etapa-11-responder-dms.md` | Cloudflare + Meta |

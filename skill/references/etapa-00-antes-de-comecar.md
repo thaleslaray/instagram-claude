@@ -14,15 +14,19 @@ Confira os pré-requisitos com o aluno, um por um. Não siga enquanto algum falt
 
 ## Conferir o MCP da Meta (você confere, nesta ordem)
 
-1. **Está instalado?** Tente `devtools_app_list` (só leitura). Se a ferramenta não existir, o aluno roda no terminal:
-   ```bash
-   claude mcp add --transport http meta-social https://mcp.facebook.com/devtools
-   ```
-   Depois fecha e abre uma sessão nova do Claude Code, digita `/mcp`, escolhe `meta-social` e entra com a conta de desenvolvedor da Meta. Na tela de consentimento, marca **Gerenciamento** (não só Leitura), **business_management** e os portfólios que vai usar. Documentação: https://developers.facebook.com/documentation/mcp/devtools-mcp
+1. **Está instalado?** Tente `devtools_app_list` (só leitura). Se a ferramenta não existir, o aluno adiciona a Meta como **conector** no Claude Desktop. É tudo por clique, sem terminal:
+   1. Ele abre https://claude.ai/customize/connectors (no Claude Desktop: **Personalização > Conectores**).
+   2. Clica em **Adicionar** e depois em **Adicionar conector personalizado**.
+   3. Em nome, escreve `Meta`. Em URL, cola `https://mcp.facebook.com/devtools`. Clica em **Continuar**.
+   4. Nas telas de autenticação, deixa o que o Claude sugerir e clica em **Continuar** e depois em **Adicionar**.
+   5. Na lista de conectores, clica em **Conectar** ao lado de `Meta`. Abre o login da Meta: ele entra com a conta de desenvolvedor. Na tela de consentimento, marca **Gerenciamento** (não só Leitura), **business_management** e os portfólios que vai usar.
+   6. Ele abre uma **conversa nova** (o conector só aparece em conversa nova) e chama a skill de novo. Você retoma desta seção.
+   - Plano Team ou Enterprise: se **Adicionar conector personalizado** não aparecer, quem adiciona é o dono da organização, em https://claude.ai/admin-settings/connectors. Depois o aluno acha `Meta` em **Personalização > Conectores** e clica em **Conectar**.
    - Se aparecer "It looks like this app isn't available", a Meta ainda não liberou o MCP para essa conta. Siga sem ele: a etapa 2 vai pelo painel (2d).
+   - Documentação: https://developers.facebook.com/documentation/mcp/devtools-mcp
 2. **Responde?** `devtools_app_list` devolve uma lista (mesmo vazia) sem erro.
 3. **Enxerga o portfólio?** Chame `devtools_business_list` (só leitura).
-   - Lista vazia: faltou marcar `business_management` ou o portfólio no consentimento. O aluno refaz pelo `/mcp`.
+   - Lista vazia: faltou marcar `business_management` ou o portfólio no consentimento. O aluno refaz o consentimento: em **Personalização > Conectores**, abre o conector `Meta`, desconecta, clica em **Conectar** de novo e marca o que faltou. Depois, conversa nova.
    - O portfólio que ele vai usar aparece com `can_add_assets: true`: ótimo, anote o `business_id`.
    - Ele não tem portfólio nenhum: o portfólio vai ser criado na etapa 3. Para isso a Meta exige nome e sobrenome, e-mail, **site** e **endereço** (rua, cidade e país com 2 letras; CEP e estado são opcionais): peça agora para ele ter em mãos.
    - Ele já tem vários portfólios: a Meta limita quantos uma pessoa pode criar ("You have reached the limit for the number of Businesses you can create at this time"). Para quem já tem muitos, use um existente em vez de criar outro.
