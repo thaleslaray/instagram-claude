@@ -9,6 +9,8 @@ Se a conta já esteve ligada a outro app, cada mensagem chega nos dois e o teste
 3. Depois abre a aba dos testadores: https://www.instagram.com/accounts/manage_access/?tab=tester
 4. Para cada app listado como "Autorizado para você": clicar em **Remover**. (O papel de testador de um app antigo não sai quando você remove o app na aba Ativos. Tem que sair aqui também.)
 
+Se o **Remover** não tirar o app da lista, siga mesmo assim. No teste de 24/11/2026, o app novo funcionou do começo ao fim com o app antigo ainda ligado à conta.
+
 Aviso: se a conta também estava ligada a alguma ferramenta de atendimento, o aluno precisa desconectar a conta lá antes de seguir, senão as duas disputam as mensagens.
 
 ## Como saber que deu certo

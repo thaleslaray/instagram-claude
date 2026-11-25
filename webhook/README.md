@@ -1,6 +1,6 @@
 # Webhook do Instagram
 
-O webhook mais simples possível para ligar as DMs do seu app da Meta. Um clique e pronto. De brinde, ele serve as páginas de política de privacidade e de exclusão de dados que a Meta pede para publicar o app.
+O webhook mais simples possível para ligar as DMs do seu app da Meta. Um clique e pronto. De brinde, ele serve o que a Meta pede para publicar o app: as páginas de política de privacidade e de exclusão de dados, e um ícone pronto.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/thaleslaray/instagram-claude/tree/main/webhook)
 
@@ -26,7 +26,7 @@ Este template cria esse endereço na sua conta da Cloudflare, de graça. Ele nã
 6. No painel da Meta (developers.facebook.com): seu app > Casos de uso > Instagram > Personalizar > "API setup with Unified login" (em alguns apps o nome é "API setup with Instagram login") > passo 3, "Configurar webhooks". Cole o endereço em "URL de callback" e escreva `instagram-claude` em "Verificar token". Clique em "Verificar e salvar".
 7. Na lista de campos que aparece, assine `messages`.
 8. Ainda na mesma página, no passo 2, na coluna "Assinatura do webhook", deixe a sua conta do Instagram como **Ativado**. O passo 4, "Conclua a análise do app", não precisa: app só para a sua própria conta dispensa a análise.
-9. Publique o app, se ainda não publicou: menu da esquerda > **Publicar** (em apps antigos, a chave **Modo do app** no topo, de "desenvolvimento" para **Ao vivo**). Antes, em Configurações do app > Básico, preencha a **URL da Política de Privacidade** com `SEU-ENDEREÇO/privacidade`, a **URL de exclusão de dados** com `SEU-ENDEREÇO/exclusao-de-dados` e escolha uma categoria.
+9. Publique o app, se ainda não publicou: menu da esquerda > **Publicar** > botão **Publicar** (em apps antigos, a chave **Modo do app** no topo, de "desenvolvimento" para **Ao vivo**). Antes, em Configurações do app > Básico, preencha a **URL da Política de Privacidade** com `SEU-ENDEREÇO/privacidade` e a **URL de exclusão de dados** com `SEU-ENDEREÇO/exclusao-de-dados`, envie como **Ícone do app** a imagem de `SEU-ENDEREÇO/icone.png` e escolha a categoria **Negócio e Páginas**. Salve: o aviso "Não qualificado para envio" tem que sumir.
 10. Teste com uma DM NOVA. Mensagens que chegaram antes de ligar a assinatura não podem ser respondidas.
 
 ## Faz parte do Instagram + Claude
