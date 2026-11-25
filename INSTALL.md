@@ -59,7 +59,6 @@ Depois, rode este bloco inteiro numa chamada só. Ele baixa o pacote da skill da
 (
   set -e
   TMP="$(mktemp -d)"
-  trap 'rm -rf "$TMP"' EXIT
   curl -fsSL https://github.com/thaleslaray/instagram-claude/releases/latest/download/instagram-app-meta.skill -o "$TMP/instagram-app-meta.skill"
   unzip -q "$TMP/instagram-app-meta.skill" -d "$TMP"
   mkdir -p ~/.claude/skills
@@ -68,7 +67,7 @@ Depois, rode este bloco inteiro numa chamada só. Ele baixa o pacote da skill da
 )
 ```
 
-**Deu certo se** aparecer a linha `name: instagram-app-meta`. Se o bloco falhar no meio, a pasta temporária é apagada do mesmo jeito. Diga à pessoa o que falhou e pare.
+**Deu certo se** aparecer a linha `name: instagram-app-meta`. A pasta temporária fica na pasta de temporários do sistema, que se limpa sozinha. Se o bloco falhar no meio, diga à pessoa o que falhou e pare.
 
 ## Passo 3: baixar a extensão e conferir
 
